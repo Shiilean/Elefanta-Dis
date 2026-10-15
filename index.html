@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ELEFANTA DIS NUEVO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --teal:#7fc4c9;
+    --teal-dark:#5a9ba0;
+    --teal-light:#a9dadd;
+    --mint:#d9ede2;
+    --mint-line:#bcdcc9;
+    --tan:#b49e7e;
+    --tan-dark:#a08a68;
+    --grey:#5b6b6e;
+    --grey-dark:#4b5557;
+    --red:#d9534f;
+    --green:#2e8b57;
+    --blue:#2f6fed;
+    --text:#4a5a5c;
+    --bg:#eef7f6;
+    --card:#ffffff;
+    --shadow:0 4px 10px rgba(0,0,0,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:"Segoe UI",Helvetica,Arial,sans-serif;
+    color:var(--text);background:var(--bg);
+  }
+  /* ---- Top bar ---- */
+  .topbar{
+    background:var(--teal);color:#fff;display:flex;align-items:center;
+    gap:14px;padding:14px 22px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20;
+  }
+  .topbar .burger{font-size:26px;cursor:pointer;line-height:1;user-select:none}
+  .topbar .brand{font-size:22px;font-weight:600;letter-spacing:.5px}
+  .topbar .spacer{flex:1}
+  .topbar .store-pick{
+    background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);
+    color:#fff;border-radius:6px;padding:6px 10px;font-size:14px;
+  }
+  .topbar .store-pick option{color:#333}
+
+  /* ---- Side menu ---- */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:30}
+  .sidemenu{
+    position:fixed;top:0;left:-290px;width:270px;height:100%;background:#fff;
+    box-shadow:var(--shadow);transition:left .25s;z-index:40;padding-top:10px;overflow:auto;
+  }
+  .sidemenu.open{left:0}
+  .sidemenu h5{margin:14px 18px 6px;color:var(--teal-dark);text-transform:uppercase;font-size:12px;letter-spacing:1px}
+  .sidemenu a{display:block;padding:11px 20px;color:var(--text);text-decoration:none;border-bottom:1px solid #f0f0f0;cursor:pointer}
+  .sidemenu a:hover{background:var(--mint)}
+
+  /* ---- Layout ---- */
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px}
+  .page{display:none}
+  .page.active{display:block}
+  h1.title{font-family:"Segoe Script","Brush Script MT",cursive;color:var(--teal);font-weight:400;font-size:40px;margin:4px 0 22px}
+  h2.sub{font-weight:600;color:var(--grey);margin:26px 0 12px;font-size:22px}
+
+  /* ---- Alert ---- */
+  .alert{
+    background:var(--mint);border:1px solid var(--mint-line);border-radius:8px;
+    padding:14px 18px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;color:#3f6b55;
+  }
+  .alert .x{cursor:pointer;font-size:20px;color:#6b8a78}
+
+  /* ---- Menu grid (home) ---- */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .tile{
+    border-radius:10px;color:#fff;min-height:150px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    cursor:pointer;transition:transform .12s;text-align:center;padding:18px;
+  }
+  .tile:hover{transform:translateY(-3px)}
+  .tile svg{width:64px;height:64px;fill:none;stroke:#fff;stroke-width:2.4}
+  .tile span{font-weight:700;letter-spacing:.5px;font-size:17px}
+  .t-teal{background:var(--teal-dark)}
+  .t-teal2{background:var(--teal)}
+  .t-light{background:var(--teal-light)}
+  .t-tan{background:var(--tan)}
+
+  /* ---- Cards / forms ---- */
+  .card{background:var(--card);border:1px solid #e6eceb;border-radius:10px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+  label{display:block;margin:14px 0 5px;font-weight:600;color:var(--grey)}
+  input,select,textarea{
+    width:100%;padding:11px 12px;border:1px solid #d7dede;border-radius:7px;font-size:15px;color:var(--text);background:#fff;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--teal)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:150px}
+  .inline-add{display:flex;gap:10px;align-items:flex-end}
+  .inline-add>div{flex:1}
+
+  /* ---- Buttons ---- */
+  button{font-family:inherit;border:none;border-radius:7px;padding:10px 18px;font-size:15px;cursor:pointer;color:#fff}
+  .btn-teal{background:var(--teal)}
+  .btn-teal-d{background:var(--teal-dark)}
+  .btn-grey{background:var(--grey)}
+  .btn-red{background:var(--red)}
+  .btn-green{background:var(--green)}
+  .btn-blue{background:var(--blue)}
+  .btn-plus{background:var(--blue);width:46px;padding:10px 0;font-size:20px}
+  .btn-yellow{background:#e0a92e}
+  button:hover{filter:brightness(1.07)}
+  .btnbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+  /* ---- Tables ---- */
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #eef2f2;font-size:14px}
+  th{color:var(--tan-dark);font-weight:700;border-bottom:2px solid #eef2f2}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+
+  /* ---- Stat cards ---- */
+  .statbar{background:var(--teal);border-radius:10px;padding:18px;display:flex;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+  .stat{background:#fff;border-radius:8px;padding:16px 20px;flex:1;min-width:170px}
+  .stat .lbl{color:var(--grey);font-size:13px}
+  .stat .val{font-size:24px;font-weight:700;color:var(--teal-dark);margin-top:4px}
+
+  /* ---- Category / product chips ---- */
+  .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .chip{border:1px solid #e0e6e6;border-radius:7px;padding:13px 15px;background:#fff;cursor:pointer;color:var(--teal-dark);font-weight:600}
+  .chip:hover{background:var(--mint)}
+  .prodcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+  .prodcard{border:1px solid #e0e6e6;border-radius:8px;padding:14px;background:#fff}
+  .prodcard h4{margin:0 0 8px;color:var(--teal-dark)}
+  .prodcard .ln{font-size:13px;color:#6a7a7c;margin:2px 0}
+  .muted{color:#8a9a9c;font-size:13px}
+  .pill{display:inline-block;background:var(--mint);color:#3f6b55;border-radius:20px;padding:2px 10px;font-size:12px}
+  .pay-row{display:flex;gap:10px;margin:10px 0}
+  .pay{width:54px;height:40px;border:2px solid #d7dede;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;font-size:20px}
+  .pay.sel{border-color:var(--blue);background:#eaf1ff}
+  .right{text-align:right}
+  .tot-line{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+  .tot-line.big{font-size:20px;font-weight:700;color:var(--red);border-bottom:none}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.chips{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}.chips{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ===== Iconos reales de Elefanta (Illustrator) — ocultos, se referencian con <use> ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="elefIcons" fill="#fff">
+<path d="M221.89,77.39c0.64-3.96,1.29-8.1,2-12.24c0.16-0.9-0.04-1.51-0.69-2.16c-2.75-2.75-5.44-5.57-8.18-8.33c-0.82-0.83-1.35-1.7-0.95-2.87c0.41-1.18,1.43-1.49,2.55-1.66c3.64-0.53,7.28-1.11,10.93-1.61c1.02-0.14,1.58-0.59,2-1.54c1.55-3.45,3.2-6.86,4.79-10.29c0.48-1.03,1.08-1.89,2.33-1.93c1.33-0.04,1.98,0.84,2.49,1.93c1.62,3.48,3.29,6.93,4.86,10.42c0.38,0.85,0.88,1.24,1.79,1.37c3.65,0.51,7.29,1.09,10.93,1.62c1.15,0.17,2.26,0.42,2.69,1.68c0.42,1.25-0.21,2.13-1.06,2.98c-2.71,2.72-5.36,5.5-8.07,8.22c-0.64,0.64-0.84,1.27-0.68,2.17c0.68,3.93,1.27,7.88,1.93,11.81c0.19,1.15,0.09,2.16-0.95,2.86c-0.99,0.66-1.92,0.38-2.88-0.16c-3.26-1.83-6.55-3.59-9.79-5.45c-0.87-0.5-1.5-0.48-2.37,0.02c-3.32,1.91-6.69,3.76-10.07,5.57C223.55,80.86,221.76,79.71,221.89,77.39z"/>
+<g><path d="M54.79,158.9c0.07,0,0.14,0,0.2,0c2.48,2.4,4.96,4.79,7.48,7.22c2.19-2.45,4.32-4.83,6.46-7.22c0.34,0,0.68,0,1.02,0c0.14,0.08,0.28,0.19,0.43,0.22c6.55,1.53,13.1,3.05,19.65,4.57c0,0.29,0,0.58,0,0.87c-0.31,0.31-0.65,0.6-0.93,0.95c-1.42,1.76-2.81,3.56-4.25,5.29c-0.51,0.61-0.72,1.23-0.71,2.05c0.02,7.43,0.01,14.86,0.01,22.3c0,0.64-0.05,1.14-0.7,1.51c-4.76,2.74-9.5,5.54-14.24,8.31c-0.97,0.57-1.28,0.37-1.28-0.82c-0.01-7.14-0.02-14.28,0.03-21.43c0-0.46,0.36-1.1,0.73-1.35c1.41-0.95,2.89-1.78,4.34-2.66c3.17-1.91,6.33-3.82,9.73-5.87c-6.66-1.71-13.07-3.35-19.53-5.01c0,4.53,0,8.95,0,13.41c0.82,0.18,1.61,0.39,2.41,0.5c0.72,0.1,0.98,0.48,0.98,1.23c-0.01,7.29-0.01,14.57,0,21.86c0,0.86-0.32,1.19-1.13,1.01c-6.57-1.41-13.14-2.83-19.72-4.19c-1.01-0.21-1.22-0.7-1.21-1.69c0.04-7.36,0.01-14.72,0.04-22.08c0-0.87-0.23-1.47-0.82-2.08c-1.93-2-3.81-4.06-5.69-6.11c-0.73-0.79-0.7-1,0.21-1.51c2.17-1.22,4.34-2.42,6.51-3.64C48.13,162.68,51.46,160.79,54.79,158.9z M46.42,177.52c0.03,0.08,0.06,0.16,0.08,0.25c5.06,1.06,10.12,2.11,15.24,3.18c0-4.29,0-8.45,0-12.74C56.55,171.37,51.49,174.45,46.42,177.52z"/></g>
+<g><path d="M233.28,164.66c-2.35,1.88-4.64,3.72-6.93,5.55c-2.24,1.79-4.47,3.58-6.71,5.37c-0.59,0.47-1.15,0.4-1.63-0.18c-0.7-0.85-1.39-1.71-2.08-2.58c-0.56-0.71-0.47-1.22,0.27-1.81c4.98-3.98,9.95-7.96,14.92-11.95c0.72-0.58,1.44-1.16,2.17-1.73c0.67-0.51,1.17-0.45,1.7,0.21c1.71,2.14,3.42,4.29,5.12,6.43c1.31,1.64,2.61,3.29,3.92,4.93c0.08,0.1,0.17,0.18,0.31,0.34c2.94-3.06,5.87-6.1,8.87-9.22c-0.41-0.4-1.01-0.97-1.6-1.55c-0.46-0.45-0.91-0.9-1.37-1.35c-0.36-0.36-0.5-0.78-0.28-1.26c0.2-0.45,0.58-0.59,1.04-0.59c3.42-0.01,6.85-0.02,10.27-0.02c0.82,0,1.2,0.33,1.21,1.15c0.04,3.16,0.04,6.31,0.06,9.47c0,0.3,0.01,0.61,0,0.91c-0.02,0.46-0.23,0.85-0.66,1.01c-0.42,0.16-0.83,0.08-1.17-0.27c-0.95-0.96-1.93-1.9-2.87-2.87c-0.27-0.27-0.42-0.28-0.69-0.01c-2.85,2.84-5.72,5.67-8.58,8.5c-1.28,1.26-2.56,2.53-3.85,3.78c-0.62,0.61-1.21,0.57-1.75-0.12c-1.87-2.34-3.73-4.68-5.59-7.02c-1.24-1.56-2.48-3.12-3.73-4.68C233.56,164.96,233.44,164.83,233.28,164.66z"/><path d="M253.02,186.96c0-4.8,0-9.59,0-14.39c0-0.92,0.36-1.3,1.29-1.3c1.3-0.01,2.6,0,3.9,0.01c0.77,0.01,1.13,0.38,1.16,1.15c0.01,0.27,0.01,0.53,0.01,0.8c0,9.15,0,18.29,0,27.44c0,1.84-0.14,1.99-1.97,1.99c-1.02,0-2.03,0-3.05,0c-0.97,0-1.35-0.39-1.35-1.37C253.02,196.52,253.02,191.74,253.02,186.96z"/><path d="M229.28,186.91c0-4.79,0-9.59,0-14.38c0-0.86,0.37-1.24,1.23-1.25c1.32-0.01,2.64-0.01,3.96,0c0.79,0.01,1.17,0.4,1.17,1.2c0,9.66,0,19.32,0,28.98c0,0.77-0.41,1.2-1.18,1.21c-1.32,0.02-2.64,0.02-3.96,0c-0.84-0.01-1.23-0.42-1.23-1.26C229.28,196.57,229.28,191.74,229.28,186.91z"/><path d="M217.41,191.4c0-3.31,0-6.63,0-9.94c0-0.88,0.37-1.28,1.26-1.29c1.28-0.01,2.57-0.01,3.85,0c0.89,0.01,1.25,0.36,1.25,1.23c0,6.68,0,13.37,0,20.05c0,0.81-0.36,1.19-1.17,1.21c-1.34,0.02-2.67,0.02-4.01,0c-0.79-0.01-1.17-0.42-1.17-1.21C217.41,198.1,217.42,194.75,217.41,191.4C217.42,191.4,217.41,191.4,217.41,191.4z"/><path d="M241.15,191.55c0-3.23,0-6.45,0-9.68c0-0.98,0.36-1.34,1.36-1.35c1.25,0,2.5,0,3.74,0c0.85,0,1.26,0.39,1.26,1.24c0,6.52,0.01,13.05,0,19.57c0,0.95-0.38,1.32-1.34,1.32c-1.23,0.01-2.46,0.01-3.69,0.01c-0.94,0-1.34-0.39-1.34-1.33C241.14,198.08,241.14,194.82,241.15,191.55C241.15,191.55,241.15,191.55,241.15,191.55z"/></g>
+<path d="M138.82,182.81c6.27,0.08,11.29,5.11,11.22,11.25c-0.07,6.12-5.26,11.17-11.41,11.11c-6.08-0.06-11.19-5.34-11.07-11.45C127.69,187.66,132.77,182.73,138.82,182.81z M137.02,191.14c-0.01-1.69-0.77-2.95-1.75-2.92c-0.94,0.03-1.82,1.49-1.79,2.96c0.04,1.71,0.9,3.07,1.9,2.99C136.35,194.1,137.04,192.84,137.02,191.14z M144.09,191.19c-0.02-1.6-0.82-2.94-1.77-2.96c-0.98-0.02-1.73,1.24-1.74,2.92c0,0.05,0,0.09,0,0.14c0.02,1.73,0.76,2.94,1.77,2.89C143.31,194.13,144.11,192.76,144.09,191.19z M144.53,196.78c-3.86,3.18-7.64,3.07-11.49-0.01c1.37,2.1,3.4,2.94,5.68,2.96C141.06,199.75,143.15,198.9,144.53,196.78z"/>
+<path d="M165.05,182.81c6.27,0.08,11.29,5.11,11.22,11.25c-0.07,6.12-5.26,11.17-11.41,11.11c-6.08-0.06-11.19-5.34-11.07-11.45C153.92,187.66,159,182.73,165.05,182.81z M163.26,191.14c-0.01-1.69-0.77-2.95-1.75-2.92c-0.94,0.03-1.82,1.49-1.79,2.96c0.04,1.71,0.9,3.07,1.9,2.99C162.58,194.1,163.27,192.84,163.26,191.14z M170.33,191.19c-0.02-1.6-0.82-2.94-1.77-2.96c-0.98-0.02-1.73,1.24-1.74,2.92c0,0.05,0,0.09,0,0.14c0.02,1.73,0.76,2.94,1.77,2.89C169.54,194.13,170.34,192.76,170.33,191.19z M170.76,196.78c-3.86,3.18-7.64,3.07-11.49-0.01c1.37,2.1,3.4,2.94,5.68,2.96C167.3,199.75,169.38,198.9,170.76,196.78z"/>
+<path d="M151.81,162.39c6.27,0.08,11.29,5.11,11.22,11.25c-0.07,6.12-5.26,11.17-11.41,11.11c-6.08-0.06-11.19-5.34-11.07-11.45C140.67,167.24,145.76,162.31,151.81,162.39z M150.01,170.72c-0.01-1.69-0.77-2.95-1.75-2.92c-0.94,0.03-1.82,1.49-1.79,2.96c0.04,1.71,0.9,3.07,1.9,2.99C149.34,173.68,150.02,172.41,150.01,170.72z M157.08,170.76c-0.02-1.6-0.82-2.94-1.77-2.96c-0.98-0.02-1.73,1.24-1.74,2.92c0,0.05,0,0.09,0,0.14c0.02,1.73,0.76,2.94,1.77,2.89C156.3,173.71,157.1,172.33,157.08,170.76z M157.52,176.35c-3.86,3.18-7.64,3.07-11.49-0.01c1.37,2.1,3.4,2.94,5.68,2.96C154.05,179.32,156.14,178.47,157.52,176.35z"/>
+<g><path d="M160.27,77.67c-0.6-1.43-0.82-2.8-0.74-4.23c0.23-3.95,3.07-7.34,6.92-8.23c0.55-0.13,1.13-0.2,1.69-0.22c0.42-0.01,0.53-0.13,0.53-0.55c-0.01-3.68-0.01-7.36-0.01-11.04c0-2.99,0-5.98,0-8.97c0-0.98-0.2-1.19-1.18-1.19c-1.21-0.01-2.42,0-3.63,0c-0.62,0-0.92-0.27-0.92-0.76c0.01-0.44,0.34-0.7,0.92-0.7c1.31,0,2.62,0,3.93,0c1.38,0,2.34,0.95,2.34,2.35c0.01,6.79,0.01,13.58-0.01,20.37c0,0.43,0.09,0.61,0.55,0.74c3.81,1.07,6.17,3.58,6.77,7.48c0.78,5.03-2.72,9.29-7.16,10.12c-3.6,0.67-6.57-0.5-8.88-3.34c-0.22-0.27-0.44-0.39-0.8-0.38c-6.42,0.01-12.84-0.02-19.26,0.03c-1.5,0.01-2.62-1.03-2.62-2.61c0.04-10.74,0.04-21.48,0-32.22c-0.01-1.65,1.25-2.66,2.57-2.55c1.07,0.08,2.15,0.01,3.22,0.02c0.53,0,0.9,0.31,0.89,0.74c-0.01,0.42-0.35,0.71-0.86,0.72c-1.09,0.01-2.18,0-3.28,0.01c-0.83,0-1.07,0.25-1.07,1.1c0,10.37,0,20.74,0,31.11c0,0.42-0.01,0.84,0,1.26c0.02,0.66,0.3,0.95,0.97,0.96c1.31,0.01,2.62,0,3.93,0c4.84,0,9.68,0,14.52,0C159.81,77.67,159.99,77.67,160.27,77.67z M168.51,81.54c4.18,0.01,7.57-3.36,7.58-7.52c0.01-4.16-3.37-7.56-7.53-7.59c-4.15-0.02-7.57,3.38-7.58,7.53C160.97,78.15,164.34,81.54,168.51,81.54z"/><path d="M154.14,45.78c-1.81,0-3.63-0.04-5.44,0.01c-1.47,0.05-2.4-0.91-2.29-2.28c0.05-0.67,0-1.34,0.01-2.01c0.02-1.15,0.78-1.92,1.93-1.95c0.82-0.02,1.65-0.02,2.47,0c0.31,0.01,0.48-0.09,0.6-0.39c0.49-1.17,1.58-1.94,2.77-1.89c1.31,0.05,2.25,0.69,2.76,1.91c0.12,0.28,0.27,0.37,0.56,0.37c0.79-0.02,1.58-0.02,2.37-0.01c1.3,0.02,2.06,0.79,2.07,2.08c0.01,0.69,0,1.38,0,2.07c-0.01,1.27-0.8,2.08-2.07,2.09C157.96,45.79,156.05,45.78,154.14,45.78z M151.24,41.01c-0.94,0-1.88,0-2.82,0c-0.41,0-0.55,0.25-0.55,0.62c0,0.69,0,1.38,0,2.07c0,0.41,0.19,0.62,0.62,0.61c0.64-0.01,1.28,0,1.91,0c3.11,0,6.21,0,9.32,0c0.67,0,0.74-0.08,0.74-0.76c0-0.64-0.02-1.28,0.01-1.91c0.01-0.46-0.19-0.64-0.63-0.63c-0.77,0.01-1.55,0.01-2.32-0.01c-0.32-0.01-0.46,0.09-0.58,0.4c-0.59,1.47-2.16,2.2-3.67,1.73C152.22,42.79,151.61,42.02,151.24,41.01z M152.67,40.27c0,0.88,0.65,1.53,1.52,1.52c0.82-0.01,1.51-0.69,1.52-1.51c0.01-0.84-0.68-1.52-1.54-1.52C153.31,38.77,152.67,39.42,152.67,40.27z"/><path d="M157.23,52.6c-2,0-4,0-6,0c-0.6,0-0.94-0.26-0.96-0.72c-0.02-0.47,0.32-0.76,0.92-0.76c4.03,0,8.07,0,12.1,0c0.54,0,0.9,0.32,0.89,0.75c-0.01,0.45-0.34,0.73-0.9,0.73C161.27,52.6,159.25,52.59,157.23,52.6C157.23,52.59,157.23,52.59,157.23,52.6z"/><path d="M157.26,57.43c1.93,0,3.86,0,5.8,0c0.15,0,0.31-0.01,0.45,0.01c0.39,0.07,0.66,0.3,0.67,0.7c0.02,0.39-0.21,0.66-0.61,0.75c-0.15,0.03-0.3,0.04-0.45,0.04c-3.95,0-7.9,0-11.85,0c-0.07,0-0.13,0-0.2,0c-0.5-0.04-0.82-0.36-0.8-0.79c0.02-0.4,0.35-0.69,0.84-0.69C153.16,57.43,155.21,57.43,157.26,57.43C157.26,57.43,157.26,57.43,157.26,57.43z"/><path d="M143.2,58.17c0-0.54-0.01-1.07,0-1.61c0.01-0.54,0.31-0.83,0.85-0.84c1.07-0.01,2.15,0,3.22,0c0.56,0,0.86,0.3,0.87,0.87c0.01,1.06,0.01,2.11,0,3.17c0,0.62-0.27,0.9-0.88,0.9c-1.06,0.01-2.11,0.01-3.17,0c-0.62-0.01-0.88-0.28-0.89-0.89C143.2,59.24,143.2,58.7,143.2,58.17z M146.62,59.18c0-0.7,0-1.31,0-1.94c-0.66,0-1.28,0-1.96,0c0,0.58-0.01,1.13,0.01,1.67c0,0.09,0.17,0.25,0.27,0.25C145.49,59.2,146.04,59.18,146.62,59.18z"/><path d="M146.03,49.35c0.54,0,1.07,0,1.61,0c0.5,0.01,0.81,0.31,0.81,0.82c0.01,1.09,0.01,2.18-0.01,3.27c-0.01,0.54-0.31,0.84-0.85,0.85c-1.07,0.01-2.15,0.01-3.22,0c-0.59-0.01-0.86-0.28-0.87-0.86c-0.01-1.09-0.01-2.18,0-3.27c0-0.52,0.28-0.8,0.81-0.81C144.89,49.34,145.46,49.35,146.03,49.35C146.03,49.35,146.03,49.35,146.03,49.35z M146.94,50.81c-0.59,0-1.13-0.01-1.66,0.01c-0.1,0-0.28,0.15-0.28,0.24c-0.03,0.56-0.01,1.13-0.01,1.7c0.69,0,1.31,0,1.96,0C146.94,52.11,146.94,51.49,146.94,50.81z"/><path d="M143.2,64.54c0-0.54-0.01-1.08,0-1.61c0.01-0.53,0.28-0.81,0.81-0.82c1.09-0.02,2.18-0.02,3.28-0.01c0.54,0.01,0.84,0.31,0.85,0.85c0.01,1.09,0.02,2.18,0,3.28c-0.01,0.54-0.28,0.8-0.82,0.81c-1.09,0.01-2.18,0.01-3.28,0c-0.6-0.01-0.83-0.26-0.84-0.88C143.2,65.62,143.2,65.08,143.2,64.54z M144.7,63.61c0,0.66,0,1.3,0,1.93c0.67,0,1.3,0,1.91,0c0-0.67,0-1.29,0-1.93C145.96,63.61,145.35,63.61,144.7,63.61z"/><path d="M145.72,68.51c0.54,0,1.07-0.01,1.61,0c0.52,0.01,0.8,0.25,0.8,0.76c0.02,1.12,0.02,2.25,0,3.37c-0.01,0.51-0.32,0.8-0.84,0.81c-1.07,0.01-2.15,0.01-3.22,0c-0.61-0.01-0.87-0.28-0.88-0.91c-0.01-1.06-0.01-2.11,0-3.17c0-0.59,0.27-0.85,0.86-0.86C144.62,68.5,145.17,68.51,145.72,68.51C145.72,68.51,145.72,68.51,145.72,68.51z M146.63,69.96c-0.6,0-1.15-0.01-1.7,0.01c-0.09,0-0.25,0.11-0.25,0.17c-0.02,0.59-0.01,1.19-0.01,1.77c0.71,0,1.32,0,1.96,0C146.63,71.27,146.63,70.66,146.63,69.96z"/><path d="M157.18,65.22c-2,0-4,0-6,0c-0.57,0-0.93-0.3-0.92-0.76c0.01-0.44,0.34-0.69,0.93-0.69c4,0,8,0,12,0c0.08,0,0.17,0,0.25,0.01c0.43,0.03,0.75,0.34,0.75,0.73c0,0.38-0.32,0.7-0.76,0.72c-0.59,0.02-1.18,0.01-1.76,0.01C160.17,65.22,158.68,65.22,157.18,65.22C157.18,65.22,157.18,65.22,157.18,65.22z"/><path d="M153.77,71.55c-0.87,0-1.74,0-2.62,0c-0.54,0-0.89-0.3-0.88-0.75c0-0.44,0.32-0.73,0.85-0.73c1.76-0.01,3.52-0.01,5.28,0c0.51,0,0.83,0.32,0.83,0.75c0,0.43-0.33,0.72-0.85,0.73C155.51,71.56,154.64,71.55,153.77,71.55C153.77,71.55,153.77,71.55,153.77,71.55z"/><path d="M170.15,76.41c0-0.97-0.46-1.31-1.63-1.77l-0.5-0.2c-1.74-0.7-2.72-1.54-2.72-3.13c0-1.58,1.3-2.8,3.54-2.8c1.77,0,3.04,0.83,3.07,2.13c-0.09,0.54-0.48,0.75-0.85,0.75c-0.53,0-1.04-0.22-1.22-1.27l-0.18-1.07l1.16,0.67c-0.76-0.34-1.21-0.4-1.8-0.4c-0.99,0-1.71,0.43-1.71,1.45c0,0.81,0.5,1.15,1.5,1.53l0.52,0.2c2.11,0.82,2.9,1.7,2.9,3.23c0,1.65-1.45,2.91-3.83,2.91c-2,0-3.13-0.81-3.15-2.17c0.19-0.51,0.55-0.71,0.93-0.71c0.58,0,0.92,0.28,1.02,1.08l0.16,1.27l-1.09-0.76c0.74,0.34,1.24,0.49,2.13,0.49C169.49,77.84,170.15,77.27,170.15,76.41z M168.21,73.56h0.96v6.62h-0.96V73.56z M168.31,73.56v-6.45h0.96v6.45H168.31z"/></g>
+<g><path d="M328.68,60.17c8.51-2.38,16.99-4.76,25.58-7.16c0.92,3.57,1.83,7.11,2.75,10.71c-2.59,0.73-5.1,1.44-7.6,2.14c-5.05,1.41-10.1,2.82-15.14,4.24c-0.5,0.14-0.87,0.13-1.26-0.25c-0.31-0.3-0.7-0.6-1.1-0.73c-0.96-0.32-1.3-1-1.51-1.93c-0.5-2.19-1.1-4.35-1.65-6.52C328.71,60.52,328.71,60.36,328.68,60.17z"/><path d="M325.39,47.59c5.69-1.59,11.35-3.18,17.09-4.78c0.4,1.55,0.79,3.06,1.18,4.57c0.47,1.82,0.91,3.64,1.41,5.45c0.16,0.57,0.03,0.75-0.54,0.91c-5.27,1.45-10.54,2.94-15.8,4.42c-0.17,0.05-0.35,0.06-0.6,0.1C327.21,54.69,326.31,51.18,325.39,47.59z"/><path d="M327.57,68.08c-0.94,0.26-1.84,0.51-2.79,0.77c-0.58-2.25-1.17-4.53-1.76-6.82c-1.85-7.25-3.71-14.49-5.55-21.75c-0.14-0.56-0.38-0.79-0.96-0.71c-0.33,0.05-0.68,0.06-1.01,0.03c-0.62-0.04-1.14,0.01-1.56,0.6c-0.19,0.26-0.68,0.39-1.05,0.41c-1.2,0.05-2.41,0.05-3.61,0.01c-1.07-0.03-1.75-0.83-1.73-1.92c0.02-1,0.77-1.71,1.84-1.72c0.97-0.01,1.94,0.01,2.9-0.01c0.7-0.02,1.34,0.03,1.86,0.6c0.14,0.15,0.48,0.16,0.72,0.17c1.33,0.02,2.67,0.06,4-0.01c0.74-0.04,0.98,0.26,1.14,0.9c1.45,5.74,2.92,11.47,4.39,17.2C325.47,59.92,326.52,64,327.57,68.08z"/><path d="M322.05,76.5c-0.06-3.46,2.64-6.46,5.87-6.52c3.62-0.07,6.43,2.7,6.5,6.39c0.07,3.41-2.7,6.38-5.9,6.53C324.92,83.06,321.98,79.95,322.05,76.5z M330.88,76.6c0.01-1.53-1.13-2.79-2.55-2.82c-1.47-0.03-2.7,1.2-2.73,2.75c-0.03,1.47,1.17,2.74,2.62,2.76C329.68,79.32,330.87,78.12,330.88,76.6z"/><path d="M355.93,67.13c0.29,0.97,0.57,1.88,0.87,2.87c-6.89,1.93-13.73,3.84-20.57,5.76c-0.24-0.97-0.47-1.89-0.72-2.92C342.25,70.95,349.06,69.05,355.93,67.13z"/></g>
+<g><path d="M53.01,61.32c0,6.68,0,13.32,0,19.99c-1.7,0-3.36,0-5.06,0c0-8.27,0-16.52,0-24.78c-1.18-0.21-2.2-0.66-3.06-1.44c-1.08-0.97-1.63-2.19-1.67-3.64c-0.01-0.24,0.11-0.49,0.21-0.72c1.56-3.47,3.14-6.94,4.7-10.42c0.15-0.33,0.32-0.4,0.65-0.4c12.74,0.01,25.48,0.01,38.22,0c0.31,0,0.48,0.06,0.61,0.37c1.6,3.58,3.24,7.14,4.81,10.73c0.36,0.82,0.02,1.67-0.35,2.43c-0.87,1.77-2.32,2.75-4.25,3.04c-0.42,0.06-0.43,0.31-0.43,0.64c0.01,7.85,0.01,15.7,0.01,23.55c0,0.2,0,0.41,0,0.63c-8.1,0-16.15,0-24.25,0c0-6.67,0-13.32,0-19.99C59.75,61.32,56.42,61.32,53.01,61.32z M83.04,51.47c0.04,0.24,0.06,0.45,0.11,0.64c0.44,1.52,1.55,2.21,3.02,2.51c1.48,0.3,3.2-0.39,3.97-1.63c0.41-0.65,0.55-1.28,0.18-2.06c-1.35-2.87-2.64-5.77-3.93-8.67c-0.15-0.33-0.32-0.44-0.67-0.43c-11.91,0.01-23.83,0.01-35.74,0c-0.34,0-0.5,0.1-0.64,0.41c-1.32,2.95-2.65,5.91-4,8.84c-0.22,0.48-0.2,0.9-0.03,1.37c0.9,2.36,4.38,2.97,6.32,1.23c0.66-0.59,1.01-1.33,1.05-2.22c0.53,0,1.02,0.02,1.51-0.01c0.34-0.02,0.42,0.14,0.48,0.43c0.08,0.37,0.18,0.75,0.38,1.06c0.76,1.18,1.89,1.69,3.28,1.74c1.66,0.05,3.24-0.96,3.69-2.42c0.08-0.25,0.12-0.52,0.18-0.78c0.65,0,1.27,0,1.89,0c0.08,1.78,1.51,2.98,3.15,3.16c2.43,0.26,3.92-0.84,4.45-3.18c0.61,0,1.22,0,1.83,0c0.62,2.23,1.67,3.14,3.74,3.23c0.82,0.03,1.59-0.16,2.28-0.6c0.96-0.61,1.52-1.48,1.59-2.61C81.81,51.47,82.42,51.47,83.04,51.47z M65.05,59.39c0,6.69,0,13.33,0,19.99c6.84,0,13.62,0,20.43,0c0-0.22,0-0.41,0-0.6c0-4.35,0-8.7,0-13.05c0-2.95,0-5.91,0.01-8.86c0-0.3-0.06-0.43-0.38-0.53c-0.51-0.15-1.03-0.37-1.47-0.67c-0.56-0.37-1.05-0.85-1.58-1.28c-2.08,2.68-6.82,3.22-9.47-0.03c-1.23,1.48-2.8,2.23-4.72,2.23c-1.92-0.01-3.49-0.75-4.74-2.27c-1.23,1.49-2.8,2.27-4.72,2.27c-1.94,0-3.52-0.75-4.78-2.29c-0.85,1.15-1.98,1.82-3.3,2.13c-0.41,0.1-0.48,0.25-0.48,0.62c0.01,7.26,0,14.51,0,21.77c0,0.19,0,0.37,0,0.55c0.45,0,0.84,0,1.27,0c0-6.68,0-13.32,0-19.98C55.75,59.39,60.36,59.39,65.05,59.39z"/><path d="M65.77,73.5c0-4.72,0-9.38,0-14.09c6.31,0,12.6,0,18.93,0c0,4.68,0,9.37,0,14.09C78.41,73.5,72.11,73.5,65.77,73.5z M82.8,71.59c0-3.45,0-6.86,0-10.27c-5.06,0-10.07,0-15.09,0c0,3.44,0,6.85,0,10.27C72.75,71.59,77.75,71.59,82.8,71.59z"/></g>
+<g><path d="M347.16,174.86c-1.85-0.89-3.57-1.71-5.3-2.54c-0.6-0.28-1.03-0.72-0.57-1.34c0.19-0.26,0.85-0.42,1.15-0.29c4.44,1.95,8.78,4.09,12.69,7.02c0.81,0.61,0.76,1.26-0.15,1.76c-1.31,0.71-2.62,1.43-3.97,2.07c-0.63,0.3-0.79,0.7-0.79,1.35c0.02,3.81-0.03,7.63,0.01,11.44c0.01,0.92-0.28,1.43-1.13,1.83c-6.04,2.83-12.06,5.71-18.08,8.6c-0.68,0.33-1.22,0.31-1.89-0.01c-5.99-2.88-11.98-5.74-17.99-8.56c-0.88-0.41-1.2-0.91-1.19-1.88c0.05-3.75,0-7.5,0.04-11.25c0.01-0.77-0.18-1.22-0.91-1.55c-1.27-0.58-2.49-1.28-3.73-1.94c-1.12-0.59-1.14-1.21-0.14-1.95c3.81-2.85,8.06-4.91,12.36-6.87c0.57-0.26,1.09-0.3,1.4,0.33c0.32,0.65-0.1,1.02-0.65,1.28c-1.72,0.82-3.44,1.64-5.32,2.54c0.43,0.23,0.7,0.4,0.99,0.54c5.14,2.45,10.29,4.91,15.44,7.33c0.33,0.16,0.86,0.21,1.17,0.06c5.41-2.54,10.8-5.11,16.19-7.68C346.87,175.09,346.94,175.02,347.16,174.86z M311.75,182.92c0,0.47,0,0.76,0,1.05c0,3.2,0.02,6.41-0.02,9.61c-0.01,0.68,0.21,1.02,0.82,1.31c5.63,2.65,11.23,5.34,16.86,7.99c0.37,0.18,0.97,0.18,1.34,0.01c5.66-2.65,11.29-5.36,16.94-8.03c0.54-0.25,0.76-0.54,0.76-1.17c-0.03-3.26,0-6.53,0-9.8c0-0.28-0.04-0.57-0.06-0.93c-0.38,0.19-0.66,0.31-0.92,0.45c-3.65,1.91-7.3,3.8-10.93,5.75c-0.81,0.43-1.39,0.37-2.04-0.25c-0.64-0.61-1.35-1.14-2.03-1.71c-0.79-0.66-1.58-1.31-2.39-1.98c-1.56,1.3-3.06,2.5-4.5,3.77c-0.63,0.55-1.16,0.58-1.88,0.19c-3.17-1.7-6.37-3.35-9.55-5.02C313.4,183.77,312.65,183.39,311.75,182.92z M328.34,184.36c-0.14-0.15-0.17-0.22-0.21-0.24c-5.58-2.66-11.16-5.33-16.75-7.97c-0.19-0.09-0.51-0.14-0.67-0.04c-1.18,0.74-2.33,1.53-3.49,2.3c0.11,0.12,0.14,0.18,0.19,0.21c5.55,2.92,11.11,5.84,16.67,8.74c0.18,0.09,0.55,0.06,0.71-0.06C325.98,186.34,327.14,185.36,328.34,184.36z M331.74,184.27c1.22,1.02,2.33,1.88,3.36,2.83c0.48,0.44,0.83,0.38,1.35,0.11c3.01-1.6,6.04-3.17,9.06-4.76c2.48-1.3,4.96-2.6,7.57-3.97c-1.15-0.76-2.2-1.43-3.21-2.15c-0.46-0.34-0.83-0.32-1.32-0.08c-3.32,1.6-6.65,3.18-9.98,4.76C336.35,182.06,334.13,183.12,331.74,184.27z"/><path d="M323.65,161.17c-0.1,0.77-0.63,0.87-1.26,0.91c-2.52,0.18-4.53,1.96-5.04,4.43c-0.06,0.3-0.08,0.6-0.09,0.91c-0.02,0.6-0.26,1.04-0.9,1.03c-0.64-0.01-0.84-0.46-0.89-1.05c-0.23-2.77-1.93-4.74-4.52-5.25c-0.33-0.06-0.72,0.03-0.98-0.12c-0.35-0.2-0.82-0.57-0.82-0.87c0-0.29,0.48-0.71,0.83-0.85c0.49-0.2,1.09-0.12,1.61-0.28c2.17-0.64,3.73-2.62,3.88-4.92c0.04-0.64,0.15-1.22,0.91-1.21c0.76,0.01,0.86,0.59,0.9,1.23c0.19,2.79,2.33,4.92,5.15,5.13C323.06,160.31,323.56,160.44,323.65,161.17z"/><path d="M350.34,160.44c-0.36,0.23-0.7,0.62-1.08,0.67c-2.87,0.43-4.15,1.68-4.54,4.58c-0.08,0.57-0.37,1-0.92,0.88c-0.33-0.08-0.77-0.54-0.82-0.88c-0.46-2.9-1.71-4.19-4.57-4.56c-0.56-0.07-0.95-0.32-0.94-0.91c0.01-0.59,0.41-0.81,0.97-0.88c2.76-0.32,4.18-1.74,4.5-4.5c0.06-0.56,0.3-0.96,0.89-0.96c0.58,0,0.83,0.38,0.9,0.94c0.33,2.79,1.76,4.19,4.48,4.54c0.39,0.05,0.75,0.41,1.12,0.62C350.33,160.15,350.33,160.3,350.34,160.44z"/><path d="M333.8,177.76c0.22-5.45,2.2-10.13,5.58-14.27c0.35-0.43,0.77-0.64,1.27-0.29c0.54,0.37,0.49,0.85,0.15,1.35c-0.86,1.25-1.8,2.46-2.56,3.78c-1.74,3.01-2.59,6.29-2.67,9.76c0,0.21,0.06,0.49-0.04,0.62c-0.22,0.28-0.57,0.7-0.82,0.68c-0.32-0.03-0.69-0.4-0.87-0.72C333.69,178.42,333.8,178.02,333.8,177.76z"/><path d="M326.4,178.05c0-0.08-0.01,0.07,0,0.23c0.03,0.63-0.17,1.13-0.86,1.16c-0.7,0.02-0.86-0.48-0.93-1.1c-0.19-1.53-0.33-3.09-0.72-4.58c-0.7-2.71-2.17-5.01-4.13-7c-0.47-0.48-0.97-0.99-0.31-1.62c0.66-0.63,1.19-0.1,1.61,0.4c0.87,1.05,1.78,2.09,2.53,3.23C325.3,171.38,326.28,174.68,326.4,178.05z"/><path d="M329.08,177.83c0.32-1.54,0.62-3.09,0.96-4.63c0.14-0.64,0.46-1.22,1.25-0.94c0.71,0.25,0.6,0.82,0.46,1.44c-0.3,1.39-0.54,2.8-0.74,4.2c-0.09,0.66,0.06,1.42-0.89,1.52C329.47,179.5,329.19,178.99,329.08,177.83z"/><path d="M331.89,162.94c0,0.3,0.11,0.67-0.02,0.9c-0.21,0.37-0.59,0.64-0.89,0.95c-0.28-0.3-0.73-0.57-0.82-0.92c-0.14-0.54-0.05-1.15-0.03-1.73c0.02-0.57,0.35-1.01,0.9-0.9c0.33,0.07,0.64,0.53,0.84,0.88C331.99,162.33,331.89,162.67,331.89,162.94z"/><path d="M328.33,164.86c1.29,0,1.81,0.26,1.72,0.92c-0.15,1.06-1.01,0.81-1.71,0.84c-0.3,0.01-0.66,0.11-0.89-0.02c-0.37-0.2-0.65-0.56-0.97-0.85c0.32-0.3,0.59-0.66,0.96-0.87C327.66,164.76,328.03,164.86,328.33,164.86z"/><path d="M333.74,164.87c0.3,0,0.67-0.1,0.9,0.03c0.35,0.19,0.8,0.52,0.87,0.85c0.11,0.55-0.34,0.87-0.91,0.89c-0.55,0.02-1.1,0.01-1.65,0c-0.57-0.01-0.96-0.29-0.97-0.87c-0.01-0.58,0.37-0.87,0.94-0.9C333.19,164.85,333.47,164.86,333.74,164.87z"/><path d="M331.89,168.82c-0.02,0.46,0.2,1.43-0.88,1.43c-1.08,0.01-0.87-0.95-0.89-1.66c-0.01-0.34-0.11-0.73,0.03-0.99c0.18-0.35,0.55-0.83,0.85-0.83c0.3,0,0.68,0.47,0.86,0.82C332,167.85,331.89,168.25,331.89,168.82z"/><path d="M330.98,194.22c0,1.98-0.01,3.97,0,5.95c0,0.64-0.13,1.23-0.89,1.23c-0.75,0-0.9-0.57-0.9-1.22c0.01-4.03,0.01-8.05,0-12.08c0-0.65,0.13-1.22,0.89-1.22c0.77,0,0.89,0.58,0.89,1.22C330.97,190.13,330.98,192.18,330.98,194.22z"/></g>
+<g fill="none" stroke="#7fc4c9" stroke-width="2.1" stroke-linecap="round">
+<path d="M144.53,196.78c-3.86,3.18-7.64,3.07-11.49-0.01"/>
+<path d="M170.76,196.78c-3.86,3.18-7.64,3.07-11.49-0.01"/>
+<path d="M157.52,176.35c-3.86,3.18-7.64,3.07-11.49-0.01"/>
+</g>
+</g>
+</defs></svg>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="burger" onclick="toggleMenu()">&#9776;</span>
+  <span class="brand">Elefanta</span>
+  <span class="spacer"></span>
+  <span id="syncBadge" onclick="go('server')" title="Estado de conexión con el servidor"
+    style="cursor:pointer;font-size:13px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:5px 12px">● sin servidor</span>
+</div>
+
+<!-- SIDE MENU -->
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="sidemenu" id="sidemenu">
+  <h5>Menú</h5>
+  <a onclick="go('home')">Menú Principal</a>
+  <a onclick="go('newsale')">Nueva Venta</a>
+  <a onclick="go('sales')">Revisar Ventas</a>
+  <a onclick="go('products')">Productos</a>
+  <a onclick="go('newproduct')">Nuevo Producto</a>
+  <a onclick="go('stock')">Ingresar Stock</a>
+  <a onclick="go('purchases')">Compras</a>
+  <a onclick="go('stores')">Marcas / Tiendas</a>
+  <a onclick="go('reports')">Reportes</a>
+  <h5>Datos</h5>
+  <a onclick="go('categories')">Categorías</a>
+  <a onclick="go('server')">Servidor (tiempo real)</a>
+  <a onclick="go('import')">Base de datos (Excel)</a>
+  <a onclick="go('trash')">Papelera</a>
+  <a onclick="exportData()">Exportar copia (.json)</a>
+  <a onclick="document.getElementById('importFile').click()">Importar copia</a>
+  <a onclick="resetDemo()">Restablecer datos de ejemplo</a>
+</div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+
+<div class="wrap">
+
+<!-- ============ HOME ============ -->
+<div class="page active" id="home">
+  <div class="alert" id="welcome">
+    <span>Has ingresado correctamente</span>
+    <span class="x" onclick="this.parentElement.style.display='none'">&times;</span>
+  </div>
+  <div class="card" style="margin-bottom:22px">
+    <label style="margin-top:0">Buscar producto (en todas las tiendas y categorías)</label>
+    <input id="homeSearch" placeholder="Escribe nombre, SKU, categoría o tienda…" oninput="renderHomeSearch()" autocomplete="off">
+    <div id="homeSearchResults" style="margin-top:12px"></div>
+  </div>
+  <div class="grid">
+    <div class="tile t-teal" onclick="go('newsale')">
+      <svg viewBox="38 31 60 60"><use href="#elefIcons"/></svg>
+      <span>NUEVA VENTA</span>
+    </div>
+    <div class="tile t-light" onclick="go('sales')">
+      <svg viewBox="128 30 60 60"><use href="#elefIcons"/></svg>
+      <span>REVISAR VENTAS</span>
+    </div>
+    <div class="tile t-tan" onclick="go('products')">
+      <svg viewBox="207 28 60 60"><use href="#elefIcons"/></svg>
+      <span>PRODUCTOS</span>
+    </div>
+    <div class="tile t-teal2" onclick="go('stock')">
+      <svg viewBox="302 30 60 60"><use href="#elefIcons"/></svg>
+      <span>INGRESAR STOCK</span>
+    </div>
+    <div class="tile t-light" onclick="go('newproduct')">
+      <svg viewBox="300 149 60 60"><use href="#elefIcons"/></svg>
+      <span>NUEVO PRODUCTO</span>
+    </div>
+    <div class="tile t-tan" onclick="go('purchases')">
+      <svg viewBox="34 152 60 60"><use href="#elefIcons"/></svg>
+      <span>COMPRAS</span>
+    </div>
+    <div class="tile t-teal2" onclick="go('stores')">
+      <svg viewBox="122 154 60 60"><use href="#elefIcons"/></svg>
+      <span>MARCAS / TIENDAS</span>
+    </div>
+    <div class="tile t-light" onclick="go('reports')">
+      <svg viewBox="209 149 60 60"><use href="#elefIcons"/></svg>
+      <span>REPORTES</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NUEVA VENTA ============ -->
+<div class="page" id="newsale">
+  <h1 class="title">Nueva Venta</h1>
+  <div class="row">
+    <div class="card" style="flex:2;min-width:320px">
+      <h2 class="sub" style="margin-top:0">Añadir Productos</h2>
+      <div class="inline-add">
+        <div>
+          <label>Buscar Productos</label>
+          <select id="saleProdPick"></select>
+        </div>
+        <button class="btn-teal" onclick="addToCart()">Añadir Producto</button>
+      </div>
+      <table style="margin-top:16px">
+        <thead><tr><th>Nombre</th><th>Tienda</th><th class="num">Precio</th><th class="num">Cantidad</th><th class="num">Subtotal</th><th></th></tr></thead>
+        <tbody id="cartBody"><tr><td colspan="6" class="muted">Sin productos aún.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card" style="flex:1;min-width:260px">
+      <h2 class="sub" style="margin-top:0">Pago</h2>
+      <div class="tot-line"><span>Subtotal</span><span id="saleSub">$0</span></div>
+      <div class="tot-line big"><span>Total</span><span id="saleTot">$0</span></div>
+      <label>Métodos de Pago</label>
+      <div class="pay-row">
+        <div class="pay sel" data-pay="Efectivo" onclick="pickPay(this)">💵</div>
+        <div class="pay" data-pay="Débito" onclick="pickPay(this)">💳</div>
+        <div class="pay" data-pay="Transferencia" onclick="pickPay(this)">📲</div>
+        <div class="pay" data-pay="Pasarela web" onclick="pickPay(this)">🌐</div>
+      </div>
+      <label>Descuento</label>
+      <input type="number" id="saleDisc" value="0" oninput="renderCart()">
+      <button class="btn-green" style="width:100%;margin-top:14px" onclick="finishSale()">Realizar venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REVISAR VENTAS ============ -->
+<div class="page" id="sales">
+  <h1 class="title">Ver Ventas</h1>
+  <div class="statbar">
+    <div class="stat"><div class="lbl">Ventas</div><div class="val" id="stVentas">$0</div></div>
+    <div class="stat"><div class="lbl">IVA en contra</div><div class="val" id="stIva">$0</div></div>
+    <div class="stat"><div class="lbl">N° Ventas</div><div class="val" id="stNum">0</div></div>
+    <div class="stat"><div class="lbl">Ganancia Elefanta</div><div class="val" id="stProfit">$0</div></div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <div><label>Fecha inicial</label><input type="date" id="salesFrom"></div>
+      <div><label>Fecha final</label><input type="date" id="salesTo"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn-teal" onclick="renderSales()">Ver ventas</button></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Pago</th><th>Fecha</th><th class="num">IVA</th><th class="num">Ganancia</th><th class="num">Total</th><th></th></tr></thead>
+    <tbody id="salesBody"></tbody>
+  </table>
+</div>
+
+<!-- ============ PRODUCTOS (por categoría) ============ -->
+<div class="page" id="products">
+  <h1 class="title">Productos</h1>
+  <h2 class="sub" style="margin-top:0">Categorías</h2>
+  <div class="chips" id="catChips"></div>
+  <div id="catDetail" style="margin-top:26px"></div>
+</div>
+
+<!-- ============ NUEVO PRODUCTO ============ -->
+<div class="page" id="newproduct">
+  <h1 class="title" id="npTitle">Nuevo Producto</h1>
+  <div class="card" style="max-width:640px">
+    <div id="npStockNote" class="alert" style="display:none"></div>
+    <label>Nombre producto:</label>
+    <input id="npName" placeholder="Nombre del producto">
+    <label>SKU:</label>
+    <input id="npSku" placeholder="SKU">
+    <label>Seleccione si existe en stock o será a pedido:</label>
+    <select id="npType"><option>Existe en stock</option><option>A pedido</option></select>
+    <label>Precio de venta a público:</label>
+    <input id="npPrice" type="number" placeholder="Ingresa precio">
+    <div class="row">
+      <div><label>Coste (sin IVA):</label><input id="npCost" type="number" placeholder="Costo neto"></div>
+      <div><label>Costo con IVA:</label><input id="npCostIva" type="number" placeholder="Costo con IVA"></div>
+    </div>
+    <label>Categoría:</label>
+    <div class="inline-add">
+      <div><select id="npCat"></select></div>
+      <button class="btn-plus" onclick="quickAddCategory()">+</button>
+    </div>
+    <label>Tienda:</label>
+    <select id="npStore" onchange="onStorePick()"></select>
+    <label>Comisión por venta a la tienda (%):</label>
+    <input id="npComm" type="number" value="0">
+    <p class="muted" style="margin-top:6px">Se llena solo: 0% para Elefanta (tienda madre) y 10% para el resto. Puedes cambiarlo.</p>
+    <div class="btnbar">
+      <button class="btn-grey" id="npCancelBtn" onclick="go('home')">Atrás</button>
+      <button class="btn-teal" id="npSaveBtn" onclick="saveProduct()">Añadir Producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDITAR PRODUCTO ============ -->
+<div class="page" id="editproduct">
+  <h1 class="title">Editar Producto</h1>
+  <div class="card" style="max-width:640px">
+    <label>Nombre producto:</label>
+    <input id="epName" placeholder="Nombre del producto">
+    <label>SKU:</label>
+    <input id="epSku" placeholder="SKU">
+    <label>Seleccione si existe en stock o será a pedido:</label>
+    <select id="epType"><option>Existe en stock</option><option>A pedido</option></select>
+    <label>Stock actual:</label>
+    <input id="epStock" type="number">
+    <label>Precio de venta a público:</label>
+    <input id="epPrice" type="number" placeholder="Ingresa precio">
+    <div class="row">
+      <div><label>Coste (sin IVA):</label><input id="epCost" type="number" placeholder="Costo neto"></div>
+      <div><label>Costo con IVA:</label><input id="epCostIva" type="number" placeholder="Costo con IVA"></div>
+    </div>
+    <label>Categoría:</label>
+    <div class="inline-add">
+      <div><select id="epCat"></select></div>
+      <button class="btn-plus" onclick="epAddCategory()">+</button>
+    </div>
+    <label>Tienda:</label>
+    <select id="epStore" onchange="epStorePick()"></select>
+    <label>Comisión por venta a la tienda (%):</label>
+    <input id="epComm" type="number" value="0">
+    <div class="btnbar">
+      <button class="btn-grey" onclick="go('products')">Atrás</button>
+      <button class="btn-blue" onclick="toggleHistory()">Historial</button>
+      <button class="btn-teal" onclick="saveEdit()">Editar Producto</button>
+      <button class="btn-yellow" onclick="softDeleteFromEdit()">Borrado suave</button>
+    </div>
+  </div>
+  <div id="epHistory"></div>
+</div>
+
+<!-- ============ INGRESAR STOCK ============ -->
+<div class="page" id="stock">
+  <h1 class="title">Ingresar Stock</h1>
+  <div class="card" style="max-width:640px">
+    <label>Producto:</label>
+    <select id="stkProd"></select>
+    <label>Cantidad a ingresar:</label>
+    <input id="stkQty" type="number" placeholder="Ingrese cantidad">
+
+    <label style="margin-top:18px">¿Se modificó el precio del producto (costo, IVA o precio de venta)?</label>
+    <div class="btnbar" style="margin-top:8px">
+      <button class="btn-grey" onclick="go('home')">Atrás</button>
+      <button class="btn-teal" onclick="stockContinue('no')">No, solo sumar stock</button>
+      <button class="btn-blue" onclick="stockContinue('si')">Sí, cambió el precio</button>
+    </div>
+    <p class="muted" style="margin-top:10px">Si eliges "Sí", te llevo a la ficha del producto para actualizar costo / IVA / precio de venta; el nombre, SKU, categoría, tienda y comisión quedan bloqueados. El stock se suma igual.</p>
+  </div>
+  <table>
+    <thead><tr><th>Producto</th><th>Tienda</th><th class="num">Stock actual</th></tr></thead>
+    <tbody id="stockBody"></tbody>
+  </table>
+</div>
+
+<!-- ============ COMPRAS (reporte de gasto en stock) ============ -->
+<div class="page" id="purchases">
+  <h1 class="title">Compras</h1>
+  <p class="muted" style="margin-top:-12px;margin-bottom:16px">Reporte de cuánto se ha gastado reponiendo stock e ingresando productos nuevos, de la tienda madre y las sub-tiendas. Se registra automáticamente cada vez que ingresas stock.</p>
+  <div class="statbar">
+    <div class="stat"><div class="lbl">Gasto total</div><div class="val" id="buyTotal">$0</div></div>
+    <div class="stat"><div class="lbl">Elefanta (tienda madre)</div><div class="val" id="buyMother">$0</div></div>
+    <div class="stat"><div class="lbl">Sub-tiendas</div><div class="val" id="buySubs">$0</div></div>
+    <div class="stat"><div class="lbl">Unidades ingresadas</div><div class="val" id="buyUnits">0</div></div>
+  </div>
+  <div class="card">
+    <div class="row">
+      <div><label>Fecha inicial</label><input type="date" id="buyFrom"></div>
+      <div><label>Fecha final</label><input type="date" id="buyTo"></div>
+      <div><label>Tienda / sub-tienda</label><select id="buyStoreFilter"></select></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn-teal" onclick="renderPurchases()">Ver gasto</button></div>
+    </div>
+  </div>
+  <h2 class="sub">Ingresos de stock registrados</h2>
+  <table>
+    <thead><tr><th>Fecha</th><th>Producto</th><th>Tienda</th><th class="num">Cantidad</th><th class="num">Costo unit. (c/IVA)</th><th class="num">Total gastado</th></tr></thead>
+    <tbody id="purchBody"></tbody>
+  </table>
+</div>
+
+<!-- ============ MARCAS / TIENDAS ============ -->
+<div class="page" id="stores">
+  <h1 class="title">Marcas / Tiendas</h1>
+  <div class="card" style="max-width:560px">
+    <h2 class="sub" style="margin-top:0">Añadir Tienda</h2>
+    <div class="inline-add">
+      <div><input id="storeName" placeholder="Nombre de la tienda / sub-tienda"></div>
+      <button class="btn-teal" onclick="addStore()">Añadir</button>
+    </div>
+  </div>
+  <h2 class="sub">Lista de Tiendas</h2>
+  <div class="chips" id="storeChips"></div>
+</div>
+
+<!-- ============ CATEGORIAS ============ -->
+<div class="page" id="categories">
+  <h1 class="title">Categorías</h1>
+  <div class="card" style="max-width:560px">
+    <h2 class="sub" style="margin-top:0">Añadir Categoría</h2>
+    <div class="inline-add">
+      <div><input id="catName" placeholder="Categoría"></div>
+      <button class="btn-teal" onclick="addCategory()">Añadir Categoría</button>
+    </div>
+  </div>
+  <h2 class="sub">Lista de Categorías</h2>
+  <div class="chips" id="catList"></div>
+</div>
+
+<!-- ============ REPORTES ============ -->
+<div class="page" id="reports">
+  <h1 class="title">Reportes</h1>
+  <div class="card">
+    <div class="row">
+      <div><label>Fecha inicial</label><input type="date" id="repFrom"></div>
+      <div><label>Fecha final</label><input type="date" id="repTo"></div>
+      <div><label>Tienda / sub-tienda</label><select id="repStore"></select></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn-teal" onclick="renderReports()">Generar reportes</button></div>
+    </div>
+  </div>
+  <div id="repDrill"></div>
+
+  <h2 class="sub">Ventas y comisión por tienda / sub-tienda</h2>
+  <table>
+    <thead><tr><th>Tienda</th><th class="num">N° ventas (items)</th><th class="num">Unidades</th><th class="num">Monto vendido</th><th class="num">Ganancia Elefanta</th><th class="num">Stock remanente</th></tr></thead>
+    <tbody id="repStoreBody"></tbody>
+  </table>
+
+  <h2 class="sub">Productos más vendidos</h2>
+  <table>
+    <thead><tr><th>#</th><th>Producto</th><th>Tienda</th><th class="num">Unidades</th><th class="num">Monto</th></tr></thead>
+    <tbody id="repTopBody"></tbody>
+  </table>
+
+  <h2 class="sub">Control de inventario (stock bajo primero)</h2>
+  <table>
+    <thead><tr><th>Producto</th><th>Tienda</th><th>Tipo</th><th class="num">Stock</th></tr></thead>
+    <tbody id="repStockBody"></tbody>
+  </table>
+</div>
+
+<!-- ============ SERVIDOR (tiempo real) ============ -->
+<div class="page" id="server">
+  <h1 class="title">Servidor (tiempo real)</h1>
+  <div class="card" style="max-width:680px">
+    <p class="muted" style="margin-top:0">Conecta el programa a tu Google Sheet para que el stock esté actualizado en todos los dispositivos (celular, tablet, computador), esté abierta o cerrada la tienda.</p>
+    <label>Dirección del servidor (URL que termina en /exec):</label>
+    <input id="srvUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label>Clave:</label>
+    <input id="srvKey" placeholder="tu clave">
+    <div class="btnbar">
+      <button class="btn-teal" onclick="srvSaveConfig()">Guardar y conectar</button>
+      <button class="btn-grey" onclick="srvTest()">Probar conexión</button>
+    </div>
+    <div id="srvMsg" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card" style="max-width:680px">
+    <h2 class="sub" style="margin-top:0">Sincronización</h2>
+    <p class="muted">La primera vez, sube tu base actual al servidor. Después todo se sincroniza solo.</p>
+    <div class="btnbar">
+      <button class="btn-teal-d" onclick="srvUploadNow()">Subir mi base actual al servidor</button>
+      <button class="btn-grey" onclick="srvDownloadNow()">Descargar del servidor ahora</button>
+    </div>
+    <p class="muted" style="margin-top:10px">Estado: <b id="srvState">—</b>. Última sincronización: <b id="srvLast">—</b>.</p>
+  </div>
+</div>
+
+<!-- ============ IMPORTAR / EXPORTAR EXCEL ============ -->
+<div class="page" id="import">
+  <h1 class="title">Base de datos (Excel / CSV)</h1>
+
+  <div class="card">
+    <h2 class="sub" style="margin-top:0">Descargar la base de datos actual</h2>
+    <p class="muted">Descarga el catálogo del programa al día (con el stock y precios actuales) como Excel. Úsalo para respaldar, editar en masa o enviárselo a una vendedora o administrador. Luego vuelves a importarlo.</p>
+    <div class="btnbar">
+      <button class="btn-teal-d" onclick="exportProductsXlsx()">Descargar base de datos (.xlsx)</button>
+      <button class="btn-grey" onclick="downloadTemplate()">Descargar plantilla vacía</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sub" style="margin-top:0">Importar / carga masiva</h2>
+    <p>Sube un archivo <b>.xlsx</b> o <b>.csv</b> con una fila por producto. La primera fila debe tener los títulos de columna. Se reconocen estas columnas (el orden no importa, mayúsculas/acentos dan igual):</p>
+    <p class="muted">
+      <b>nombre</b>, <b>sku</b>, <b>precio</b> (o "precio de venta"), <b>stock</b>, <b>categoria</b>,
+      <b>tienda</b>, <b>coste</b> (costo sin IVA), <b>costo con iva</b>, <b>comision</b> (opcional), <b>tipo</b> (opcional).
+    </p>
+    <p class="muted">Si una <b>tienda</b> o <b>categoría</b> no existe, se crea sola. La comisión, si viene vacía, se pone en 0% para Elefanta y 10% para las demás tiendas. Al confirmar podrás elegir entre <b>reemplazar los valores del catálogo</b> o <b>agregar todo como nuevo</b>.</p>
+    <div class="btnbar">
+      <button class="btn-teal" onclick="document.getElementById('xlsxFile').click()">Elegir archivo…</button>
+    </div>
+    <input type="file" id="xlsxFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="readSheet(event)">
+  </div>
+
+  <div id="importPreview"></div>
+</div>
+
+<!-- ============ PAPELERA ============ -->
+<div class="page" id="trash">
+  <h1 class="title">Papelera</h1>
+  <table>
+    <thead><tr><th>Nombre</th><th>Tienda</th><th class="right">Recuperar Producto</th></tr></thead>
+    <tbody id="trashBody"></tbody>
+  </table>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* =========================================================
+   ELEFANTA DIS NUEVO  —  datos en localStorage
+   ========================================================= */
+const KEY='elefanta_dis_nuevo';
+const money=n=>'$'+(Math.round(n||0)).toLocaleString('es-CL');
+const todayISO=()=>new Date().toISOString().slice(0,10);
+let db;
+
+/* ---------- Datos de ejemplo ---------- */
+function demo(){
+  return {
+    stores:['Elefanta','Apoyo Visual','Milú','Mr. Deco','Tejidos Carmen','Ema baby'],
+    categories:['Accesorios Bebés','Juguetes','Decoración','Ropa','Comida','Libros','Navidad'],
+    products:[
+      {id:1,name:'Galletas temporada',sku:'GAL-01',type:'Existe en stock',price:4900,cost:2000,costIva:2380,cat:'Comida',store:'Elefanta',comm:0,stock:12},
+      {id:2,name:'Alfajores',sku:'ALF-02',type:'Existe en stock',price:1500,cost:600,costIva:714,cat:'Comida',store:'Elefanta',comm:0,stock:30},
+      {id:3,name:'Cuchuflís',sku:'CUC-03',type:'Existe en stock',price:2500,cost:1000,costIva:1190,cat:'Comida',store:'Elefanta',comm:0,stock:8},
+      {id:4,name:'Pantalón buzo liso beige 2a',sku:'PBL-2A',type:'Existe en stock',price:8990,cost:5000,costIva:5950,cat:'Ropa',store:'Tejidos Carmen',comm:10,stock:5},
+      {id:5,name:'Enterito hibiscus',sku:'ENT-05',type:'Existe en stock',price:12990,cost:7500,costIva:8925,cat:'Ropa',store:'Ema baby',comm:10,stock:3},
+      {id:6,name:'Set apoyo visual bebé',sku:'AV-06',type:'Existe en stock',price:6990,cost:3800,costIva:4522,cat:'Accesorios Bebés',store:'Apoyo Visual',comm:10,stock:2},
+      {id:7,name:'Guirnalda decorativa',sku:'DEC-07',type:'A pedido',price:5500,cost:2900,costIva:3451,cat:'Decoración',store:'Mr. Deco',comm:10,stock:0},
+      {id:8,name:'Cuento infantil ilustrado',sku:'LIB-08',type:'Existe en stock',price:7900,cost:4200,costIva:4998,cat:'Libros',store:'Milú',comm:10,stock:14}
+    ],
+    sales:[
+      {id:1001,date:'2026-10-02',pay:'Efectivo',disc:0,items:[{pid:2,qty:4},{pid:1,qty:1}]},
+      {id:1002,date:'2026-10-05',pay:'Débito',disc:0,items:[{pid:4,qty:1},{pid:6,qty:1}]},
+      {id:1003,date:'2026-10-09',pay:'Transferencia',disc:500,items:[{pid:8,qty:2},{pid:3,qty:2}]},
+      {id:1004,date:'2026-10-12',pay:'Pasarela web',disc:0,items:[{pid:5,qty:1},{pid:2,qty:3}]}
+    ],
+    purchases:[
+      {id:5001,date:'2026-09-28',pid:2,qty:40,cost:600,iva:114},
+      {id:5002,date:'2026-10-01',pid:4,qty:6,cost:5000,iva:950}
+    ],
+    trash:[],
+    seq:{prod:9,sale:1005,purch:5003}
+  };
+}
+
+/* ---------- Persistencia local (caché del dispositivo) ---------- */
+function load(){
+  try{ db=JSON.parse(localStorage.getItem(KEY)); }catch(e){ db=null; }
+  if(!db||!db.products){ db=demo(); save(); }
+}
+function persistLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(e){} }
+function save(){ persistLocal(); if(SRV.on() && !applyingRemote) schedulePush(); }
+function applyServerDb(d){ applyingRemote=true; db=d; persistLocal(); applyingRemote=false; }
+function schedulePush(){ if(pushTimer) clearTimeout(pushTimer); setSync('guardando'); pushTimer=setTimeout(cloudSaveAll,600); }
+function resetDemo(){ if(confirm('¿Restablecer los datos de ejemplo en ESTE dispositivo? No afecta al servidor hasta que subas la base.')){ db=demo(); persistLocal(); renderAll(); go('home'); } }
+
+/* ========================================================
+   SERVIDOR EN TIEMPO REAL (Google Sheets vía Apps Script)
+   ======================================================== */
+// Valores por defecto (puedes cambiarlos en Menú → Servidor)
+const SRV_DEFAULT_URL='https://script.google.com/macros/s/AKfycbzf9h4H5HChQ_j87qVjB2z4jza7awnkmwky1qACxiOaAPJrxAqIQVrqkmOV6H8fYEVj/exec';
+const SRV_DEFAULT_KEY='Elefantadis1';
+const SRV={
+  url(){ try{return localStorage.getItem('elefanta_srv_url')||'';}catch(e){return '';} },
+  key(){ try{return localStorage.getItem('elefanta_srv_key')||'';}catch(e){return '';} },
+  on(){ return !!(this.url()&&this.key()); }
+};
+let cloudOnline=false, pollTimer=null, busy=false, applyingRemote=false, pushTimer=null;
+
+function setSync(state){
+  const b=document.getElementById('syncBadge'); if(!b) return;
+  const map={
+    ok:['● en línea','#2e8b57'],
+    guardando:['● guardando…','#e0a92e'],
+    offline:['● sin conexión','#d9534f'],
+    nocfg:['● sin servidor','#8a9a9c']
+  };
+  const [txt,col]=map[state]||map.nocfg;
+  b.textContent=txt;
+  b.style.background=col; b.style.borderColor=col; b.style.color='#fff';
+  const st=document.getElementById('srvState'); if(st) st.textContent=txt.replace('● ','');
+}
+function markSynced(){ const l=document.getElementById('srvLast'); if(l) l.textContent=new Date().toLocaleTimeString('es-CL'); }
+
+async function cloudLoad(){
+  if(!SRV.on()) return null;
+  const u=SRV.url()+'?action=load&key='+encodeURIComponent(SRV.key());
+  const r=await fetch(u);
+  const j=await r.json();
+  if(!j.ok) throw new Error(j.error||'error');
+  return j.db;
+}
+async function cloudPost(payload){
+  if(!SRV.on()) throw new Error('sin_servidor');
+  payload.key=SRV.key();
+  const r=await fetch(SRV.url(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const j=await r.json();
+  if(!j.ok) throw new Error(j.error||'error');
+  return j;
+}
+// Guarda toda la base (acciones de administrador: altas, ediciones, importación…)
+async function cloudSaveAll(){
+  if(!SRV.on()) return;
+  setSync('guardando');
+  try{ const j=await cloudPost({action:'save',db:db}); if(j.db){ applyingRemote=true; db=j.db; persistLocal(); applyingRemote=false; } cloudOnline=true; setSync('ok'); markSynced(); }
+  catch(e){ cloudOnline=false; setSync('offline'); }
+}
+// Trae lo último del servidor (para ver stock al día en todos los dispositivos)
+async function cloudRefresh(){
+  if(!SRV.on()||busy) return;
+  try{ const d=await cloudLoad(); if(d){ applyServerDb(d); renderAll(); } cloudOnline=true; setSync('ok'); markSynced(); }
+  catch(e){ cloudOnline=false; setSync('offline'); }
+}
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  if(!SRV.on()) return;
+  pollTimer=setInterval(cloudRefresh, 15000);  // refresca cada 15 s
+}
+
+/* ---- Pantalla Servidor ---- */
+function srvSaveConfig(){
+  const url=document.getElementById('srvUrl').value.trim();
+  const key=document.getElementById('srvKey').value.trim();
+  if(!url||!key){ srvMsg('Completa la dirección y la clave.','#d9534f'); return; }
+  try{ localStorage.setItem('elefanta_srv_url',url); localStorage.setItem('elefanta_srv_key',key); }catch(e){}
+  srvMsg('Configuración guardada. Probando conexión…','#5a9ba0');
+  srvTest();
+  startPolling();
+}
+function srvMsg(t,col){ const m=document.getElementById('srvMsg'); if(m){ m.innerHTML=`<span style="color:${col||'#4a5a5c'}">${t}</span>`; } }
+async function srvTest(){
+  if(!SRV.on()){ srvMsg('Primero guarda la dirección y la clave.','#d9534f'); return; }
+  srvMsg('Conectando…','#5a9ba0');
+  try{
+    const r=await fetch(SRV.url()+'?action=ping&key='+encodeURIComponent(SRV.key()));
+    const j=await r.json();
+    if(j.ok){ cloudOnline=true; setSync('ok'); srvMsg('✅ Conexión correcta con el servidor.','#2e8b57'); }
+    else { setSync('offline'); srvMsg('❌ El servidor respondió: '+(j.error||'error')+'. Revisa la clave.','#d9534f'); }
+  }catch(e){ cloudOnline=false; setSync('offline'); srvMsg('❌ No se pudo conectar. Revisa la URL (debe terminar en /exec) y tu internet.','#d9534f'); }
+}
+async function srvUploadNow(){
+  if(!SRV.on()){ srvMsg('Primero configura el servidor.','#d9534f'); return; }
+  if(!confirm('¿Subir la base de ESTE dispositivo al servidor? Reemplazará lo que haya en el servidor.')) return;
+  busy=true;
+  try{ await cloudSaveAll(); srvMsg('✅ Base subida al servidor.','#2e8b57'); }
+  catch(e){ srvMsg('❌ No se pudo subir: '+e.message,'#d9534f'); }
+  busy=false;
+}
+async function srvDownloadNow(){
+  if(!SRV.on()){ srvMsg('Primero configura el servidor.','#d9534f'); return; }
+  busy=true;
+  try{
+    const d=await cloudLoad();
+    if(d){ db=d; save(); renderAll(); srvMsg('✅ Base descargada del servidor.','#2e8b57'); setSync('ok'); markSynced(); }
+    else { srvMsg('El servidor está vacío. Usa "Subir mi base actual" para cargarlo.','#e0a92e'); }
+  }catch(e){ srvMsg('❌ No se pudo descargar: '+e.message,'#d9534f'); }
+  busy=false;
+}
+function fillServerForm(){
+  document.getElementById('srvUrl').value=SRV.url();
+  document.getElementById('srvKey').value=SRV.key();
+}
+
+/* ---------- Helpers ---------- */
+const IVA_RATE=0.19;
+const MOTHER_STORE='Elefanta';
+const DEFAULT_COMM=10; // % para todas las tiendas menos la madre
+function defaultCommFor(store){ return (store===MOTHER_STORE)?0:DEFAULT_COMM; }
+function prod(id){ return db.products.find(p=>p.id===id); }
+function storeFilter(){ return ''; } // sin filtro global: se muestra todo el negocio
+function visibleProducts(){ return db.products.slice(); }
+
+/* ======== Navegación ======== */
+function toggleMenu(){
+  document.getElementById('sidemenu').classList.toggle('open');
+  const o=document.getElementById('overlay');
+  o.style.display=o.style.display==='block'?'none':'block';
+}
+function go(id){
+  if(id==='server') fillServerForm();
+  // mantener/limpiar el modo de la ficha de producto
+  if(id==='newproduct'){ if(npMode!=='editstock') setupProductForm('new'); }
+  else { if(npMode==='editstock') setupProductForm('new'); }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(document.getElementById('sidemenu').classList.contains('open')) toggleMenu();
+  window.scrollTo(0,0);
+  renderAll();
+}
+
+/* ======== Render general ======== */
+function fillSelect(sel,arr,valfn,txtfn,placeholder){
+  const cur=sel.value;
+  sel.innerHTML=(placeholder?`<option value="">${placeholder}</option>`:'')
+    +arr.map(a=>`<option value="${valfn(a)}">${txtfn(a)}</option>`).join('');
+  if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+}
+function renderAll(){
+  // selects de formularios
+  fillSelect(document.getElementById('npCat'),db.categories,c=>c,c=>c);
+  fillSelect(document.getElementById('npStore'),db.stores,s=>s,s=>s);
+  fillSelect(document.getElementById('epCat'),db.categories,c=>c,c=>c);
+  fillSelect(document.getElementById('epStore'),db.stores,s=>s,s=>s);
+  fillSelect(document.getElementById('repStore'),db.stores,s=>s,s=>s,'Todas las tiendas');
+  const pOpts=visibleProducts();
+  fillSelect(document.getElementById('saleProdPick'),pOpts,p=>p.id,p=>`${p.name} — ${p.store} (${money(p.price)})`,'Buscar un Producto');
+  fillSelect(document.getElementById('stkProd'),db.products,p=>p.id,p=>`${p.name} — ${p.store}`);
+  fillSelect(document.getElementById('buyStoreFilter'),db.stores,s=>s,s=>s,'Todas las tiendas');
+  // tablas / vistas
+  renderCart(); renderSales(); renderCats(); renderStoreList(); renderCatList();
+  renderStockTable(); renderPurchases(); renderTrash();
+}
+
+/* ======== BUSCADOR EN PÁGINA PRINCIPAL ======== */
+function renderHomeSearch(){
+  const box=document.getElementById('homeSearchResults');
+  const q=norm(document.getElementById('homeSearch').value);
+  if(!q){ box.innerHTML=''; return; }
+  const res=db.products.filter(p=>
+    norm(p.name).includes(q) || norm(p.sku).includes(q) ||
+    norm(p.cat).includes(q) || norm(p.store).includes(q)
+  ).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!res.length){ box.innerHTML='<p class="muted">Sin resultados para esa búsqueda.</p>'; return; }
+  box.innerHTML=`<table><thead><tr><th>Producto</th><th>SKU</th><th>Categoría</th><th>Tienda</th>
+      <th class="num">Precio</th><th class="num">Stock</th><th></th></tr></thead><tbody>`
+    +res.slice(0,50).map(p=>`<tr>
+        <td>${p.name}</td><td>${p.sku||''}</td><td>${p.cat}</td><td>${p.store}</td>
+        <td class="num">${money(p.price)}</td>
+        <td class="num" style="${p.stock<=3?'color:var(--red);font-weight:700':''}">${p.stock}</td>
+        <td><button class="btn-teal" onclick="openCat('${p.cat.replace(/'/g,"\\'")}');go('products')">Ver</button></td>
+      </tr>`).join('')
+    +`</tbody></table>`
+    +(res.length>50?`<p class="muted">Mostrando 50 de ${res.length} resultados; afina la búsqueda.</p>`:'');
+}
+
+/* ======== CATEGORÍAS ======== */
+function addCategory(){
+  const v=document.getElementById('catName').value.trim();
+  if(!v) return;
+  if(!db.categories.includes(v)) db.categories.push(v);
+  db.categories.sort((a,b)=>a.localeCompare(b));
+  document.getElementById('catName').value='';
+  save(); renderAll();
+}
+function quickAddCategory(){
+  const v=prompt('Nueva categoría:'); if(!v) return;
+  if(!db.categories.includes(v.trim())){ db.categories.push(v.trim()); db.categories.sort((a,b)=>a.localeCompare(b)); save(); renderAll(); document.getElementById('npCat').value=v.trim(); }
+}
+function renderCatList(){
+  document.getElementById('catList').innerHTML=db.categories.map(c=>`<div class="chip" onclick="openCat('${c.replace(/'/g,"\\'")}');go('products')">${c}</div>`).join('');
+}
+function renderCats(){
+  document.getElementById('catChips').innerHTML=db.categories.map(c=>`<div class="chip" onclick="openCat('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
+}
+let catSort='nombre';           // 'nombre' = A-Z ; 'recientes' = últimos agregados
+let currentCat=null;
+function setCatSort(mode){ catSort=mode; if(currentCat!=null) openCat(currentCat); }
+function openCat(c){
+  currentCat=c;
+  const s=storeFilter();
+  let items=db.products.filter(p=>p.cat===c && (!s||p.store===s));
+  if(catSort==='recientes') items=items.slice().sort((a,b)=>b.id-a.id);        // id mayor = agregado más reciente
+  else items=items.slice().sort((a,b)=>a.name.localeCompare(b.name));          // por nombre A-Z
+  const esc=c.replace(/'/g,"\\'");
+  let html=`<h2 class="sub">${c}</h2>`;
+  html+=`<div class="btnbar" style="margin-top:0">
+      <button class="${catSort==='nombre'?'btn-teal':'btn-grey'}" onclick="setCatSort('nombre')">Ordenar por nombre (A-Z)</button>
+      <button class="${catSort==='recientes'?'btn-teal':'btn-grey'}" onclick="setCatSort('recientes')">Últimos agregados</button>
+    </div>`;
+  html+=items.length?`<div class="prodcards">`+items.map(p=>`
+    <div class="prodcard">
+      <h4>${p.name}</h4>
+      <div class="ln">Cantidad: ${p.stock}</div>
+      <div class="ln">Precio de venta: ${money(p.price)}</div>
+      <div class="ln">Tienda: ${p.store}</div>
+      <div class="btnbar">
+        <button class="btn-blue" onclick="editProduct(${p.id})">Editar</button>
+        <button class="btn-red" onclick="deleteProduct(${p.id})">Eliminar</button>
+      </div>
+    </div>`).join('')+`</div>`
+    :`<p class="muted">Sin productos en esta categoría.</p>`;
+  document.getElementById('catDetail').innerHTML=html;
+}
+
+/* ======== TIENDAS ======== */
+function addStore(){
+  const v=document.getElementById('storeName').value.trim();
+  if(!v) return;
+  if(!db.stores.includes(v)) db.stores.push(v);
+  document.getElementById('storeName').value='';
+  save(); renderAll();
+}
+function renderStoreList(){
+  document.getElementById('storeChips').innerHTML=db.stores.map(s=>{
+    const n=db.products.filter(p=>p.store===s).length;
+    const esc=s.replace(/'/g,"\\'");
+    const isMother=s===MOTHER_STORE;
+    return `<div class="prodcard">
+      <h4>${s}${isMother?' <span class="pill">Tienda madre</span>':''}</h4>
+      <div class="ln">${n} producto(s)</div>
+      <div class="btnbar">
+        <button class="btn-teal" onclick="go('reports');document.getElementById('repStore').value='${esc}';renderReports()">Ver reporte</button>
+        ${isMother?'':`<button class="btn-red" onclick="deleteStore('${esc}')">Eliminar tienda</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+// Retirar una tienda completa (no renueva contrato): sus productos salen del
+// inventario y van a la papelera; se puede recuperar la tienda recuperando un producto.
+function deleteStore(name){
+  if(name===MOTHER_STORE){ alert('No se puede eliminar la tienda madre Elefanta.'); return; }
+  const prods=db.products.filter(p=>p.store===name);
+  const unidades=prods.reduce((s,p)=>s+(p.stock||0),0);
+  const msg=`¿Eliminar la tienda "${name}"?\n\nSe retirarán ${prods.length} producto(s) y ${unidades} unidad(es) de stock del control de inventario.\nLos productos quedarán en la Papelera por si necesitas recuperarlos.`;
+  if(!confirm(msg)) return;
+  db.products=db.products.filter(p=>{
+    if(p.store===name){ db.trash.push(p); return false; }
+    return true;
+  });
+  db.stores=db.stores.filter(s=>s!==name);
+  save(); renderAll();
+  alert(`Tienda "${name}" eliminada. ${prods.length} producto(s) movido(s) a la papelera y retirados del inventario.`);
+}
+
+/* ======== PRODUCTOS ======== */
+function onStorePick(){
+  // al elegir tienda, sugiere la comisión por defecto
+  const store=document.getElementById('npStore').value;
+  document.getElementById('npComm').value=defaultCommFor(store);
+}
+function saveProduct(){
+  if(npMode==='editstock'){ saveStockPriceEdit(); return; }
+  const name=document.getElementById('npName').value.trim();
+  if(!name){ alert('Falta el nombre del producto'); return; }
+  const store=document.getElementById('npStore').value||db.stores[0];
+  const commField=document.getElementById('npComm').value;
+  const p={
+    id:db.seq.prod++,
+    name,
+    sku:document.getElementById('npSku').value.trim(),
+    type:document.getElementById('npType').value,
+    price:+document.getElementById('npPrice').value||0,
+    cost:+document.getElementById('npCost').value||0,
+    costIva:+document.getElementById('npCostIva').value||0,
+    cat:document.getElementById('npCat').value||'Default',
+    store,
+    comm:(commField===''?defaultCommFor(store):+commField||0),
+    stock:0
+  };
+  db.products.push(p); save(); renderAll();
+  ['npName','npSku','npPrice','npCost','npCostIva'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('npComm').value=defaultCommFor(store);
+  alert('Producto añadido: '+p.name);
+}
+/* ======== EDITAR PRODUCTO (página propia) ======== */
+let editingId=null;
+function editProduct(id){
+  const p=prod(id); if(!p) return;
+  editingId=id;
+  go('editproduct');
+  fillEditForm();
+}
+function fillEditForm(){
+  const p=prod(editingId); if(!p){ go('products'); return; }
+  const el=i=>document.getElementById(i);
+  el('epName').value=p.name;
+  el('epSku').value=p.sku||'';
+  el('epType').value=p.type;
+  el('epStock').value=p.stock;
+  el('epPrice').value=p.price;
+  el('epCost').value=p.cost||0;
+  el('epCostIva').value=p.costIva||0;
+  el('epCat').value=p.cat;
+  el('epStore').value=p.store;
+  el('epComm').value=p.comm;
+  el('epHistory').innerHTML='';
+}
+function epStorePick(){
+  // al cambiar la tienda, sugiere la comisión por defecto (0 Elefanta / 10 otras)
+  document.getElementById('epComm').value=defaultCommFor(document.getElementById('epStore').value);
+}
+function epAddCategory(){
+  const v=prompt('Nueva categoría:'); if(!v) return;
+  const t=v.trim(); if(!t) return;
+  if(!db.categories.includes(t)){ db.categories.push(t); db.categories.sort((a,b)=>a.localeCompare(b)); }
+  save(); renderAll(); document.getElementById('epCat').value=t;
+}
+function saveEdit(){
+  const p=prod(editingId); if(!p){ go('products'); return; }
+  const el=i=>document.getElementById(i);
+  const name=el('epName').value.trim();
+  if(!name){ alert('El nombre no puede quedar vacío'); return; }
+  p.name=name;
+  p.sku=el('epSku').value.trim();
+  p.type=el('epType').value;
+  p.stock=+el('epStock').value||0;
+  p.price=+el('epPrice').value||0;
+  p.cost=+el('epCost').value||0;
+  p.costIva=+el('epCostIva').value||0;
+  p.cat=el('epCat').value||'Default';
+  p.store=el('epStore').value||db.stores[0];
+  p.comm=+el('epComm').value||0;
+  save(); renderAll();
+  alert('Producto actualizado: '+p.name);
+  openCat(p.cat); go('products');
+}
+// Historial del producto: ingresos de stock (compras) y ventas
+function toggleHistory(){
+  const box=document.getElementById('epHistory');
+  if(box.innerHTML){ box.innerHTML=''; return; }
+  const p=prod(editingId); if(!p) return;
+  const ingresos=db.purchases.filter(c=>c.pid===p.id).slice().reverse();
+  const ventas=[];
+  db.sales.forEach(s=>s.items.forEach(it=>{ if(it.pid===p.id) ventas.push({date:s.date,qty:it.qty,id:s.id,pay:s.pay}); }));
+  ventas.reverse();
+  let html=`<div class="card"><h2 class="sub" style="margin-top:0">Historial — ${p.name}</h2>`;
+  html+=`<h3 style="color:var(--grey)">Ingresos de stock</h3>`;
+  html+=ingresos.length?`<table><thead><tr><th>Fecha</th><th class="num">Cantidad</th><th class="num">Costo unit. (c/IVA)</th><th class="num">Total</th></tr></thead><tbody>`
+    +ingresos.map(c=>{const unit=(c.cost||0)+(c.iva||0);return `<tr><td>${c.date}</td><td class="num">${c.qty}</td><td class="num">${money(unit)}</td><td class="num">${money(c.qty*unit)}</td></tr>`;}).join('')
+    +`</tbody></table>`:`<p class="muted">Sin ingresos de stock registrados.</p>`;
+  html+=`<h3 style="color:var(--grey);margin-top:18px">Ventas</h3>`;
+  html+=ventas.length?`<table><thead><tr><th>Venta</th><th>Fecha</th><th>Pago</th><th class="num">Cantidad</th></tr></thead><tbody>`
+    +ventas.map(v=>`<tr><td>${v.id}</td><td>${v.date}</td><td>${v.pay}</td><td class="num">${v.qty}</td></tr>`).join('')
+    +`</tbody></table>`:`<p class="muted">Sin ventas registradas.</p>`;
+  html+=`<div class="btnbar"><button class="btn-grey" onclick="document.getElementById('epHistory').innerHTML=''">Cerrar historial</button></div></div>`;
+  box.innerHTML=html;
+  box.scrollIntoView({behavior:'smooth'});
+}
+// Borrado suave: envía el producto a la papelera (se puede recuperar)
+function softDeleteFromEdit(){
+  const p=prod(editingId); if(!p) return;
+  if(!confirm(`¿Enviar "${p.name}" a la papelera? Podrás recuperarlo desde Papelera.`)) return;
+  const cat=p.cat;
+  const i=db.products.findIndex(x=>x.id===editingId);
+  db.trash.push(db.products.splice(i,1)[0]);
+  editingId=null; save(); renderAll();
+  openCat(cat); go('products');
+  alert('Producto movido a la papelera.');
+}
+function deleteProduct(id){
+  const i=db.products.findIndex(p=>p.id===id); if(i<0) return;
+  if(!confirm('¿Enviar a la papelera?')) return;
+  db.trash.push(db.products.splice(i,1)[0]);
+  save(); renderAll(); document.getElementById('catDetail').innerHTML='';
+}
+
+/* ======== PAPELERA ======== */
+function renderTrash(){
+  const b=document.getElementById('trashBody');
+  b.innerHTML=db.trash.length?db.trash.map(p=>`
+    <tr><td>${p.name}</td><td>${p.store}</td>
+    <td class="right"><button class="btn-green" onclick="recover(${p.id})">Recuperar Producto</button></td></tr>`).join('')
+    :`<tr><td colspan="3" class="muted">Papelera vacía.</td></tr>`;
+}
+function recover(id){
+  const i=db.trash.findIndex(p=>p.id===id); if(i<0) return;
+  const p=db.trash.splice(i,1)[0];
+  if(p.store && !db.stores.includes(p.store)) db.stores.push(p.store);        // revive la tienda si fue eliminada
+  if(p.cat && !db.categories.includes(p.cat)){ db.categories.push(p.cat); db.categories.sort((a,b)=>a.localeCompare(b)); }
+  db.products.push(p); save(); renderAll();
+}
+
+/* ======== STOCK ======== */
+let npMode='new', stockEditId=null, stockEditQty=0;
+
+// Registra el gasto de un ingreso de stock (para el reporte de Compras).
+// cost = costo neto por unidad ; iva = IVA por unidad ; total = qty*(cost+iva) = qty*costoConIVA
+function logStockSpend(p,qty){
+  if(!p||!qty) return;
+  const neto=p.cost||0;
+  const iva=Math.max(0,(p.costIva||0)-(p.cost||0));
+  db.purchases.push({id:db.seq.purch++,date:todayISO(),pid:p.id,qty,cost:neto,iva});
+}
+
+// Paso previo: ¿cambió el precio?  'no' = solo suma stock ; 'si' = ir a la ficha a actualizar precio
+function stockContinue(ans){
+  const id=+document.getElementById('stkProd').value;
+  const q=+document.getElementById('stkQty').value||0;
+  const p=prod(id);
+  if(!p){ alert('Selecciona un producto'); return; }
+  if(!q||q<=0){ alert('Ingresa la cantidad de stock a sumar'); return; }
+  if(ans==='no'){
+    if(SRV.on()){
+      busy=true; setSync('guardando');
+      cloudPost({action:'addStock',pid:id,qty:q,logSpend:true,date:todayISO()})
+        .then(j=>{ applyServerDb(j.db); renderAll(); cloudOnline=true; setSync('ok'); markSynced();
+                   document.getElementById('stkQty').value=''; alert('Stock de '+p.name+': '+(prod(id)?prod(id).stock:q)); })
+        .catch(e=>{ setSync('offline'); alert('No se pudo ingresar stock en el servidor: '+e.message); })
+        .finally(()=>{ busy=false; });
+      return;
+    }
+    p.stock+=q; logStockSpend(p,q); save(); renderAll();
+    document.getElementById('stkQty').value='';
+    alert(`Stock de ${p.name}: ${p.stock}`);
+    return;
+  }
+  // 'si' -> abrir la ficha en modo "actualizar precio e ingresar stock"
+  stockEditId=id; stockEditQty=q; npMode='editstock';
+  go('newproduct');
+  setupProductForm('editstock');
+}
+
+// Configura la ficha de producto para modo 'new' (normal) o 'editstock' (desde Ingresar Stock)
+function setupProductForm(mode){
+  const el=id=>document.getElementById(id);
+  const lock=(id,on)=>{ const e=el(id); e.disabled=on; e.style.background=on?'#eef2f2':''; e.style.color=on?'#8a9a9c':''; };
+  const note=el('npStockNote'), plus=document.querySelector('#newproduct .btn-plus');
+  if(mode==='editstock'){
+    const p=prod(stockEditId); if(!p){ setupProductForm('new'); return; }
+    el('npTitle').textContent='Actualizar precio e ingresar stock';
+    el('npName').value=p.name; el('npSku').value=p.sku||''; el('npType').value=p.type;
+    el('npPrice').value=p.price; el('npCost').value=p.cost||0; el('npCostIva').value=p.costIva||0;
+    el('npCat').value=p.cat; el('npStore').value=p.store; el('npComm').value=p.comm;
+    // bloqueados: nombre, SKU, categoría, tienda, comisión
+    ['npName','npSku','npCat','npStore','npComm'].forEach(i=>lock(i,true));
+    // editables: traen el último valor registrado en gris subrayado; al modificarlos pasan a texto normal
+    ['npPrice','npCost','npCostIva','npType'].forEach(i=>{
+      lock(i,false);
+      const e=el(i);
+      e.style.background='#fff';
+      e.style.color='#8a9a9c';                 // gris: valor anterior sin cambios
+      e.style.textDecoration='underline';
+      e.style.textDecorationColor='#9fb0b2';
+      e.title='Último valor registrado — puedes modificarlo';
+      e.oninput=e.onchange=()=>{ e.style.color=''; e.style.textDecoration='none'; };  // al cambiarlo, texto normal
+    });
+    if(plus) plus.style.display='none';
+    note.style.display='flex';
+    note.innerHTML=`<span>Ingresando <b>${stockEditQty}</b> unidad(es) a <b>${p.name}</b> — ${p.store}. Los valores en gris subrayado son el último registrado; modifícalos solo si cambiaron. Lo demás queda bloqueado.</span>`;
+    el('npSaveBtn').textContent='Guardar e ingresar stock';
+    npMode='editstock';
+  } else {
+    el('npTitle').textContent='Nuevo Producto';
+    ['npName','npSku','npPrice','npCost','npCostIva'].forEach(i=>el(i).value='');
+    el('npType').selectedIndex=0;
+    ['npName','npSku','npType','npPrice','npCost','npCostIva','npCat','npStore','npComm'].forEach(i=>lock(i,false));
+    // limpiar estilos y handlers del modo edición (sin tocar el onchange de la tienda)
+    ['npPrice','npCost','npCostIva','npType'].forEach(i=>{ const e=el(i); e.style.background=''; e.style.color=''; e.style.textDecoration=''; e.style.textDecorationColor=''; e.title=''; e.oninput=null; e.onchange=null; });
+    if(plus) plus.style.display='';
+    note.style.display='none';
+    el('npSaveBtn').textContent='Añadir Producto';
+    npMode='new'; stockEditId=null; stockEditQty=0;
+  }
+}
+
+// Guarda los nuevos precios del producto y suma el stock pendiente
+async function saveStockPriceEdit(){
+  const p=prod(stockEditId);
+  if(!p){ setupProductForm('new'); go('stock'); return; }
+  const val=(id,prev)=>{ const v=document.getElementById(id).value; return v===''?prev:(+v||0); };
+  const price=val('npPrice',p.price);      // si no se modifica, mantiene el anterior
+  const cost=val('npCost',p.cost||0);
+  const costIva=val('npCostIva',p.costIva||0);
+  const type=document.getElementById('npType').value;
+  const added=stockEditQty;
+  if(SRV.on()){
+    busy=true; setSync('guardando');
+    try{
+      const j=await cloudPost({action:'addStock',pid:p.id,qty:added,logSpend:true,date:todayISO(),price,cost,costIva,type});
+      applyServerDb(j.db); setupProductForm('new'); document.getElementById('stkQty').value='';
+      renderAll(); cloudOnline=true; setSync('ok'); markSynced();
+      busy=false; alert('Precio actualizado y '+added+' unidad(es) ingresada(s).'); go('stock'); return;
+    }catch(e){ busy=false; setSync('offline'); alert('No se pudo guardar en el servidor: '+e.message); return; }
+  }
+  p.price=price; p.cost=cost; p.costIva=costIva; p.type=type;
+  p.stock+=added;
+  logStockSpend(p,added);     // registra el gasto con el costo actualizado
+  save();
+  setupProductForm('new');
+  document.getElementById('stkQty').value='';
+  renderAll(); go('stock');
+  alert(`Precio actualizado y ${added} unidad(es) ingresada(s).\nStock de ${p.name}: ${p.stock}`);
+}
+function renderStockTable(){
+  document.getElementById('stockBody').innerHTML=visibleProducts().map(p=>
+    `<tr><td>${p.name}</td><td>${p.store}</td><td class="num">${p.stock}</td></tr>`).join('');
+}
+
+/* ======== COMPRAS (reporte de gasto en stock) ======== */
+function purchStore(c){ const p=prod(c.pid); return p?p.store:null; }
+function renderPurchases(){
+  const f=document.getElementById('buyFrom').value, t=document.getElementById('buyTo').value;
+  const sf=document.getElementById('buyStoreFilter').value;   // '' = todas
+  let total=0, mother=0, subs=0, units=0; const rows=[];
+  db.purchases.slice().reverse().forEach(c=>{
+    if(!inRange(c.date,f,t)) return;
+    const p=prod(c.pid);
+    const store=p?p.store:'(eliminado)';
+    if(sf && store!==sf) return;
+    const unit=(c.cost||0)+(c.iva||0);        // costo con IVA por unidad
+    const tot=c.qty*unit;
+    total+=tot; units+=c.qty;
+    if(store===MOTHER_STORE) mother+=tot; else subs+=tot;
+    rows.push(`<tr><td>${c.date}</td><td>${p?p.name:'(eliminado)'}</td><td>${store}</td>
+      <td class="num">${c.qty}</td><td class="num">${money(unit)}</td><td class="num">${money(tot)}</td></tr>`);
+  });
+  document.getElementById('buyTotal').textContent=money(total);
+  document.getElementById('buyMother').textContent=money(mother);
+  document.getElementById('buySubs').textContent=money(subs);
+  document.getElementById('buyUnits').textContent=units;
+  document.getElementById('purchBody').innerHTML=rows.join('')||'<tr><td colspan="6" class="muted">Sin ingresos de stock en el rango.</td></tr>';
+}
+
+/* ======== CARRITO / NUEVA VENTA ======== */
+let cart=[]; let payMethod='Efectivo';
+function pickPay(el){ document.querySelectorAll('.pay').forEach(x=>x.classList.remove('sel')); el.classList.add('sel'); payMethod=el.dataset.pay; }
+function addToCart(){
+  const id=+document.getElementById('saleProdPick').value; if(!id) return;
+  const line=cart.find(c=>c.pid===id);
+  if(line) line.qty++; else cart.push({pid:id,qty:1});
+  renderCart();
+}
+function renderCart(){
+  const body=document.getElementById('cartBody');
+  if(!cart.length){ body.innerHTML='<tr><td colspan="6" class="muted">Sin productos aún.</td></tr>'; }
+  else body.innerHTML=cart.map((c,ix)=>{
+    const p=prod(c.pid);
+    return `<tr><td>${p.name}</td><td>${p.store}</td><td class="num">${money(p.price)}</td>
+      <td class="num"><input type="number" value="${c.qty}" min="1" style="width:70px" onchange="setQty(${ix},this.value)"></td>
+      <td class="num">${money(p.price*c.qty)}</td>
+      <td><button class="btn-red" onclick="rmCart(${ix})">✕</button></td></tr>`;
+  }).join('');
+  const sub=cart.reduce((s,c)=>s+prod(c.pid).price*c.qty,0);
+  const disc=+document.getElementById('saleDisc').value||0;
+  document.getElementById('saleSub').textContent=money(sub);
+  document.getElementById('saleTot').textContent=money(Math.max(0,sub-disc));
+}
+function setQty(ix,v){ cart[ix].qty=Math.max(1,+v||1); renderCart(); }
+function rmCart(ix){ cart.splice(ix,1); renderCart(); }
+async function finishSale(){
+  if(!cart.length){ alert('Agrega productos a la venta'); return; }
+  const disc=+document.getElementById('saleDisc').value||0;
+  const items=cart.map(c=>({pid:c.pid,qty:c.qty}));
+  if(SRV.on()){
+    busy=true; setSync('guardando');
+    try{
+      const j=await cloudPost({action:'sale',date:todayISO(),pay:payMethod,disc,items});
+      applyServerDb(j.db);
+      cart=[]; document.getElementById('saleDisc').value='0';
+      renderAll(); cloudOnline=true; setSync('ok'); markSynced();
+      busy=false; alert('Venta realizada.'); go('sales'); return;
+    }catch(e){
+      busy=false; setSync('offline');
+      alert('No se pudo registrar la venta en el servidor ('+e.message+').\nRevisa tu conexión e inténtalo de nuevo.');
+      return;
+    }
+  }
+  // Sin servidor: registro local
+  db.sales.push({id:db.seq.sale++,date:todayISO(),pay:payMethod,disc,items});
+  cart.forEach(c=>{ const p=prod(c.pid); if(p) p.stock-=c.qty; });
+  cart=[]; document.getElementById('saleDisc').value='0';
+  save(); renderAll(); alert('Venta realizada.'); go('sales');
+}
+
+/* ======== VENTAS: cálculos ======== */
+// Ganancia de Elefanta por item:
+//  - producto de la tienda madre  -> margen = precio - costo con IVA
+//  - producto de una sub-tienda   -> comisión = precio * comisión%
+function itemProfit(p,qty){
+  if(p.store===MOTHER_STORE) return (p.price-(p.costIva||0))*qty;
+  return p.price*qty*(p.comm/100);
+}
+function saleTotals(s){
+  let gross=0, comm=0, profit=0;
+  s.items.forEach(it=>{
+    const p=prod(it.pid); if(!p) return;
+    gross+=p.price*it.qty;
+    comm+=p.price*it.qty*(p.comm/100);
+    profit+=itemProfit(p,it.qty);
+  });
+  const total=Math.max(0,gross-(s.disc||0));
+  const iva=total-total/(1+IVA_RATE); // IVA incluido en el precio
+  profit-=(s.disc||0); // el descuento lo absorbe Elefanta
+  return {gross,total,iva,comm,profit};
+}
+function inRange(d,f,t){ return (!f||d>=f)&&(!t||d<=t); }
+function renderSales(){
+  const f=document.getElementById('salesFrom').value, t=document.getElementById('salesTo').value, sf=storeFilter();
+  let V=0,I=0,N=0,P=0; const rows=[];
+  db.sales.slice().reverse().forEach(s=>{
+    if(!inRange(s.date,f,t)) return;
+    if(sf && !s.items.some(it=>{const p=prod(it.pid);return p&&p.store===sf;})) return;
+    const tt=saleTotals(s);
+    V+=tt.total; I+=tt.iva; N++; P+=tt.profit;
+    rows.push(`<tr><td>${s.id}</td><td>${s.pay}</td><td>${s.date}</td>
+      <td class="num">${money(tt.iva)}</td><td class="num">${money(tt.profit)}</td><td class="num">${money(tt.total)}</td>
+      <td><button class="btn-red" onclick="voidSale(${s.id})">Anular</button></td></tr>`);
+  });
+  document.getElementById('stVentas').textContent=money(V);
+  document.getElementById('stIva').textContent=money(I);
+  document.getElementById('stNum').textContent=N;
+  document.getElementById('stProfit').textContent=money(P);
+  document.getElementById('salesBody').innerHTML=rows.join('')||'<tr><td colspan="7" class="muted">Sin ventas en el rango.</td></tr>';
+}
+function voidSale(id){
+  if(!confirm('¿Anular esta venta? Devuelve el stock.')) return;
+  const i=db.sales.findIndex(s=>s.id===id); if(i<0) return;
+  db.sales[i].items.forEach(it=>{const p=prod(it.pid);if(p)p.stock+=it.qty;});
+  db.sales.splice(i,1); save(); renderAll();
+}
+
+/* ======== REPORTES ======== */
+function repFilterStore(){ return document.getElementById('repStore').value; } // '' = todas
+function renderReports(){
+  const f=document.getElementById('repFrom').value, t=document.getElementById('repTo').value;
+  const sf=repFilterStore();
+  document.getElementById('repDrill').innerHTML=''; // limpia detalle al regenerar
+  const byStore={}, byProd={};
+  db.sales.forEach(s=>{
+    if(!inRange(s.date,f,t)) return;
+    s.items.forEach(it=>{
+      const p=prod(it.pid); if(!p) return;
+      if(sf && p.store!==sf) return;
+      const amt=p.price*it.qty, cm=amt*(p.comm/100), prof=itemProfit(p,it.qty);
+      const st=byStore[p.store]||(byStore[p.store]={lines:0,units:0,amount:0,comm:0,profit:0});
+      st.lines++; st.units+=it.qty; st.amount+=amt; st.comm+=cm; st.profit+=prof;
+      const pr=byProd[p.id]||(byProd[p.id]={name:p.name,store:p.store,units:0,amount:0});
+      pr.units+=it.qty; pr.amount+=amt;
+    });
+  });
+  // stock remanente por tienda (todo el inventario actual de cada tienda)
+  const stockByStore={};
+  db.products.forEach(p=>{ stockByStore[p.store]=(stockByStore[p.store]||0)+(p.stock||0); });
+  // por tienda — TODAS las tiendas (incluso sin ventas en el rango), fila clicable
+  const storeNames=(sf?[sf]:db.stores.slice());
+  const sRows=storeNames.map(name=>{
+    const v=byStore[name]||{lines:0,units:0,amount:0,comm:0,profit:0};
+    return {name,v,stock:stockByStore[name]||0};
+  }).sort((a,b)=>b.v.amount-a.v.amount).map(({name,v,stock})=>{
+    const isMother=name===MOTHER_STORE;
+    const gan=isMother?'Margen propio':'Comisión';
+    return `<tr style="cursor:pointer" onclick="drillStore('${name.replace(/'/g,"\\'")}')">
+      <td><b>${name}</b> <span class="muted">(ver productos ▸)</span></td>
+      <td class="num">${v.lines}</td><td class="num">${v.units}</td>
+      <td class="num">${money(v.amount)}</td>
+      <td class="num">${money(v.profit)}<div class="muted">${gan}</div></td>
+      <td class="num" style="${stock<=3?'color:var(--red);font-weight:700':''}">${stock}</td></tr>`;
+  }).join('');
+  document.getElementById('repStoreBody').innerHTML=sRows||'<tr><td colspan="6" class="muted">Sin tiendas.</td></tr>';
+  // más vendidos
+  const tRows=Object.values(byProd).sort((a,b)=>b.units-a.units).slice(0,15).map((p,i)=>
+    `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.store}</td><td class="num">${p.units}</td><td class="num">${money(p.amount)}</td></tr>`).join('');
+  document.getElementById('repTopBody').innerHTML=tRows||'<tr><td colspan="5" class="muted">Sin datos en el rango.</td></tr>';
+  // inventario (respeta el filtro de sub-tienda)
+  const inv=db.products.filter(p=>!sf||p.store===sf).slice().sort((a,b)=>a.stock-b.stock).map(p=>
+    `<tr><td>${p.name}</td><td>${p.store}</td><td>${p.type}</td>
+     <td class="num" style="${p.stock<=3?'color:var(--red);font-weight:700':''}">${p.stock}</td></tr>`).join('');
+  document.getElementById('repStockBody').innerHTML=inv||'<tr><td colspan="4" class="muted">Sin productos.</td></tr>';
+}
+// Detalle: solo los productos vendidos por la tienda seleccionada en el rango
+function drillStore(name){
+  const f=document.getElementById('repFrom').value, t=document.getElementById('repTo').value;
+  const rows={}; let totUnits=0, totAmount=0, totProfit=0;
+  db.sales.forEach(s=>{
+    if(!inRange(s.date,f,t)) return;
+    s.items.forEach(it=>{
+      const p=prod(it.pid); if(!p||p.store!==name) return;
+      const r=rows[p.id]||(rows[p.id]={name:p.name,sku:p.sku,units:0,amount:0,profit:0});
+      r.units+=it.qty; r.amount+=p.price*it.qty; r.profit+=itemProfit(p,it.qty);
+      totUnits+=it.qty; totAmount+=p.price*it.qty; totProfit+=itemProfit(p,it.qty);
+    });
+  });
+  const list=Object.values(rows).sort((a,b)=>b.units-a.units);
+  const isMother=name===MOTHER_STORE;
+  let html=`<div class="card"><h2 class="sub" style="margin-top:0">Productos vendidos — ${name}</h2>`;
+  html+=list.length?`<table><thead><tr><th>Producto</th><th>SKU</th><th class="num">Unidades</th><th class="num">Monto</th><th class="num">${isMother?'Margen':'Comisión'}</th></tr></thead><tbody>`
+    +list.map(r=>`<tr><td>${r.name}</td><td>${r.sku}</td><td class="num">${r.units}</td><td class="num">${money(r.amount)}</td><td class="num">${money(r.profit)}</td></tr>`).join('')
+    +`<tr><td colspan="2"><b>Total</b></td><td class="num"><b>${totUnits}</b></td><td class="num"><b>${money(totAmount)}</b></td><td class="num"><b>${money(totProfit)}</b></td></tr>`
+    +`</tbody></table>`
+    :`<p class="muted">Esta tienda no registra ventas en el rango.</p>`;
+  html+=`<div class="btnbar"><button class="btn-grey" onclick="document.getElementById('repDrill').innerHTML=''">Cerrar detalle</button>
+    <button class="btn-teal-d" onclick="exportStoreReport('${name.replace(/'/g,"\\'")}')">Descargar este reporte (.xlsx)</button></div></div>`;
+  document.getElementById('repDrill').innerHTML=html;
+  document.getElementById('repDrill').scrollIntoView({behavior:'smooth'});
+}
+// Exporta el reporte de una tienda a Excel para enviárselo
+function exportStoreReport(name){
+  const f=document.getElementById('repFrom').value, t=document.getElementById('repTo').value;
+  const rows={};
+  db.sales.forEach(s=>{
+    if(!inRange(s.date,f,t)) return;
+    s.items.forEach(it=>{
+      const p=prod(it.pid); if(!p||p.store!==name) return;
+      const r=rows[p.id]||(rows[p.id]={Producto:p.name,SKU:p.sku,Unidades:0,Monto:0,Ganancia:0});
+      r.Unidades+=it.qty; r.Monto+=p.price*it.qty; r.Ganancia+=itemProfit(p,it.qty);
+    });
+  });
+  const data=Object.values(rows);
+  if(!data.length){ alert('No hay ventas de '+name+' en el rango.'); return; }
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Reporte');
+  XLSX.writeFile(wb,`reporte_${name.replace(/[^a-z0-9]/gi,'_')}_${f}_a_${t}.xlsx`);
+}
+
+/* ======== Importar Excel / CSV ======== */
+function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').trim(); }
+function num(v){ if(v==null||v==='') return 0; return +String(v).replace(/[^0-9.-]/g,'')||0; }
+
+// Diccionario: título de columna -> campo interno
+const COLMAP=[
+  {f:'name', keys:['nombre','nombre producto','producto','descripcion']},
+  {f:'sku', keys:['sku','codigo','cod']},
+  {f:'price', keys:['precio','precio venta','precio de venta','precio de venta a publico','venta','pvp']},
+  {f:'stock', keys:['stock','cantidad','existencia','inventario']},
+  {f:'cat', keys:['categoria','categoría','rubro']},
+  {f:'store', keys:['tienda','marca','sub tienda','subtienda','proveedor']},
+  {f:'cost', keys:['coste','costo','costo neto','costo sin iva','coste sin iva']},
+  {f:'costIva', keys:['costo con iva','coste con iva','costo iva','costo bruto']},
+  {f:'comm', keys:['comision','comisión','comision tienda','porcentaje']},
+  {f:'type', keys:['tipo','stock o pedido']}
+];
+function matchField(header){
+  const h=norm(header);
+  for(const c of COLMAP){ if(c.keys.includes(h)) return c.f; }
+  return null;
+}
+
+let pendingRows=null;
+function downloadTemplate(){
+  const headers=['nombre','sku','precio','stock','categoria','tienda','coste','costo con iva','comision','tipo'];
+  const sample=[
+    ['Polera algodón','POL-01',9990,10,'Ropa','Tejidos Carmen',4000,4760,10,'Existe en stock'],
+    ['Galletas avena','GAL-09',2500,20,'Comida','Elefanta',900,1071,0,'Existe en stock']
+  ];
+  const ws=XLSX.utils.aoa_to_sheet([headers,...sample]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Productos');
+  XLSX.writeFile(wb,'plantilla_ELEFANTA_DIS_NUEVO.xlsx');
+}
+// Exporta el catálogo actual del programa a Excel, con las mismas columnas que la importación.
+// Es la base de datos al día: cambias cosas en el programa y descargas el Excel actualizado.
+function exportProductsXlsx(){
+  const headers=['Nombre producto','SKU','Precio venta','Stock','Categoria','Tienda','Coste sin IVA','Costo con IVA','Comision %','Tipo'];
+  const rows=db.products.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>
+    [p.name, p.sku||'', p.price||0, p.stock||0, p.cat, p.store, p.cost||0, p.costIva||0, p.comm||0, p.type||'Existe en stock']);
+  const ws=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  ws['!cols']=[{wch:26},{wch:12},{wch:13},{wch:8},{wch:20},{wch:18},{wch:14},{wch:14},{wch:11},{wch:16}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Productos');
+  XLSX.writeFile(wb,'ELEFANTA_DIS_NUEVO_base_de_datos_'+todayISO()+'.xlsx');
+}
+function readSheet(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+      if(!rows.length){ alert('El archivo está vacío.'); return; }
+      const headers=rows[0];
+      const fields=headers.map(matchField);
+      if(!fields.includes('name')){ alert('No encontré una columna de "nombre". Revisa los títulos (puedes descargar la plantilla).'); return; }
+      const parsed=[];
+      for(let i=1;i<rows.length;i++){
+        const row=rows[i]; if(!row||!row.length) continue;
+        const o={};
+        fields.forEach((f,ci)=>{ if(f) o[f]=row[ci]; });
+        if(!o.name||String(o.name).trim()==='') continue;
+        parsed.push({
+          name:String(o.name).trim(),
+          sku:o.sku!=null?String(o.sku).trim():'',
+          price:num(o.price), stock:num(o.stock),
+          cost:num(o.cost), costIva:num(o.costIva),
+          cat:o.cat!=null&&String(o.cat).trim()?String(o.cat).trim():'Default',
+          store:o.store!=null&&String(o.store).trim()?String(o.store).trim():MOTHER_STORE,
+          comm:(o.comm==null||o.comm==='')?null:num(o.comm),
+          type:o.type&&String(o.type).toLowerCase().includes('pedido')?'A pedido':'Existe en stock'
+        });
+      }
+      pendingRows=parsed;
+      showImportPreview(parsed);
+    }catch(err){ alert('No pude leer el archivo. Asegúrate de que sea .xlsx o .csv válido.'); }
+    e.target.value='';
+  };
+  r.readAsArrayBuffer(file);
+}
+function showImportPreview(rows){
+  if(!rows.length){ document.getElementById('importPreview').innerHTML='<p class="muted">No se encontraron filas con nombre de producto.</p>'; return; }
+  const newStores=[...new Set(rows.map(r=>r.store))].filter(s=>!db.stores.includes(s));
+  const newCats=[...new Set(rows.map(r=>r.cat))].filter(c=>!db.categories.includes(c));
+  // cuántas filas coinciden con productos existentes (para el modo reemplazar)
+  let match=0; rows.forEach(r=>{ if(findExisting(r)) match++; });
+  const nuevos=rows.length-match;
+  let html=`<div class="card"><h2 class="sub" style="margin-top:0">Vista previa — ${rows.length} producto(s)</h2>`;
+  if(newStores.length) html+=`<p class="muted">Tiendas nuevas que se crearán: <b>${newStores.join(', ')}</b></p>`;
+  if(newCats.length) html+=`<p class="muted">Categorías nuevas que se crearán: <b>${newCats.join(', ')}</b></p>`;
+  html+=`<p class="muted">Coinciden con productos existentes (por SKU o nombre+tienda): <b>${match}</b> · sin coincidencia (nuevos): <b>${nuevos}</b></p>`;
+  html+=`<div class="btnbar">
+      <button class="btn-green" onclick="confirmImport('replace')">Reemplazar valores del catálogo (actualiza ${match} + agrega ${nuevos})</button>
+      <button class="btn-teal" onclick="confirmImport('add')">Agregar todas como nuevas (${rows.length})</button>
+      <button class="btn-grey" onclick="pendingRows=null;document.getElementById('importPreview').innerHTML=''">Cancelar</button>
+    </div>
+    <p class="muted" style="margin-top:8px">«Reemplazar valores» actualiza el precio, stock, costo, categoría, tienda y comisión de los productos que ya existen (manteniendo su historial de ventas) y agrega los que no estén. «Agregar como nuevas» crea todas las filas como productos nuevos (puede duplicar).</p></div>`;
+  html+=`<table><thead><tr><th>Nombre</th><th>SKU</th><th>Tienda</th><th>Categoría</th>
+    <th class="num">Precio</th><th class="num">Stock</th><th class="num">Coste</th><th class="num">C/IVA</th><th class="num">Com.%</th></tr></thead><tbody>`;
+  html+=rows.slice(0,50).map(r=>`<tr><td>${r.name}</td><td>${r.sku}</td><td>${r.store}</td><td>${r.cat}</td>
+    <td class="num">${money(r.price)}</td><td class="num">${r.stock}</td><td class="num">${money(r.cost)}</td>
+    <td class="num">${money(r.costIva)}</td><td class="num">${r.comm==null?('auto '+defaultCommFor(r.store)):r.comm}</td></tr>`).join('');
+  html+=`</tbody></table>`;
+  if(rows.length>50) html+=`<p class="muted">Mostrando las primeras 50 filas; se importarán las ${rows.length}.</p>`;
+  document.getElementById('importPreview').innerHTML=html;
+}
+// Busca un producto existente que coincida con una fila importada (por SKU; si no, por nombre+tienda)
+function findExisting(r){
+  const sku=(r.sku||'').trim().toLowerCase();
+  if(sku){ const bySku=db.products.find(p=>(p.sku||'').trim().toLowerCase()===sku); if(bySku) return bySku; }
+  return db.products.find(p=>norm(p.name)===norm(r.name) && norm(p.store)===norm(r.store));
+}
+// mode: 'add' = agrega todas como nuevas ; 'replace' = actualiza las existentes (por SKU/nombre) y agrega las nuevas
+function confirmImport(mode){
+  if(!pendingRows||!pendingRows.length) return;
+  let added=0, updated=0;
+  pendingRows.forEach(r=>{
+    if(!db.stores.includes(r.store)) db.stores.push(r.store);
+    if(!db.categories.includes(r.cat)) db.categories.push(r.cat);
+    const comm=(r.comm==null?defaultCommFor(r.store):r.comm);
+    let ex=(mode==='replace')?findExisting(r):null;
+    if(ex){
+      // reemplaza los valores del producto existente (conserva su id, así ventas/compras siguen enlazadas)
+      ex.name=r.name; ex.sku=r.sku; ex.type=r.type;
+      ex.price=r.price; ex.cost=r.cost; ex.costIva=r.costIva;
+      ex.cat=r.cat; ex.store=r.store; ex.comm=comm; ex.stock=r.stock;
+      updated++;
+    } else {
+      db.products.push({
+        id:db.seq.prod++, name:r.name, sku:r.sku, type:r.type,
+        price:r.price, cost:r.cost, costIva:r.costIva,
+        cat:r.cat, store:r.store, comm, stock:r.stock
+      });
+      added++;
+    }
+  });
+  db.categories.sort((a,b)=>a.localeCompare(b));
+  pendingRows=null; save(); renderAll();
+  document.getElementById('importPreview').innerHTML='';
+  const msg=(mode==='replace')
+    ? `Catálogo actualizado: ${updated} producto(s) reemplazado(s) y ${added} nuevo(s) agregado(s).`
+    : `${added} producto(s) importado(s) correctamente.`;
+  alert(msg);
+  go('products');
+}
+
+/* ======== Exportar / Importar copia ======== */
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ELEFANTA_DIS_NUEVO_copia_'+todayISO()+'.json';
+  a.click();
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ db=JSON.parse(r.result); save(); renderAll(); go('home'); alert('Datos importados.'); }catch(err){ alert('Archivo no válido.'); } };
+  r.readAsText(file);
+}
+
+/* ======== Init ======== */
+load();
+// Config de servidor por defecto la primera vez (se puede cambiar en Menú → Servidor)
+try{
+  if(!SRV.url() && SRV_DEFAULT_URL) localStorage.setItem('elefanta_srv_url',SRV_DEFAULT_URL);
+  if(!SRV.key() && SRV_DEFAULT_KEY) localStorage.setItem('elefanta_srv_key',SRV_DEFAULT_KEY);
+}catch(e){}
+fillServerForm();
+document.getElementById('salesFrom').value='2026-10-01';
+document.getElementById('salesTo').value=todayISO();
+document.getElementById('repFrom').value='2026-10-01';
+document.getElementById('repTo').value=todayISO();
+document.getElementById('buyFrom').value='2026-10-01';
+document.getElementById('buyTo').value=todayISO();
+renderAll();
+renderReports();
+
+// Conectar con el servidor al abrir
+(async()=>{
+  if(!SRV.on()){ setSync('nocfg'); return; }
+  setSync('guardando');
+  try{
+    const d=await cloudLoad();
+    if(d){ applyServerDb(d); renderAll(); renderReports(); }
+    else { await cloudSaveAll(); }   // servidor vacío: lo siembro con la base de este dispositivo
+    cloudOnline=true; setSync('ok'); markSynced();
+  }catch(e){ cloudOnline=false; setSync('offline'); }
+  startPolling();
+})();
+</script>
+</body>
+</html>
