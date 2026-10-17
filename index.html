@@ -545,6 +545,14 @@
     <input type="file" id="xlsxFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="readSheet(event)">
   </div>
 
+  <div class="card" style="border:1px solid #f1c9c7">
+    <h2 class="sub" style="margin-top:0;color:var(--red)">Partir desde cero</h2>
+    <p class="muted">Borra <b>todo</b> en todos los dispositivos: productos, papelera, <b>ventas y compras</b>, y deja las tiendas y categorías en limpio (solo Elefanta). Úsalo para dejar el programa como recién instalado antes de cargar tu inventario real. Esta acción no se puede deshacer.</p>
+    <div class="btnbar">
+      <button class="btn-red" onclick="vaciarTodo()">Borrar todo y partir de cero</button>
+    </div>
+  </div>
+
   <div id="importPreview"></div>
 </div>
 
@@ -1495,6 +1503,20 @@ function confirmImport(mode){
     : `${added} producto(s) importado(s) correctamente.`;
   alert(msg);
   go('products');
+}
+
+// Partir desde cero: borra productos, papelera, ventas y compras, y deja tiendas/categorías en limpio
+function vaciarTodo(){
+  if(!confirm('¿Borrar TODO y partir de cero?\n\nSe eliminarán productos, papelera, ventas y compras en TODOS los dispositivos. Esta acción no se puede deshacer.')) return;
+  if(!confirm('Confírmalo una vez más: se borrarán '+db.products.length+' producto(s) y '+db.sales.length+' venta(s).')) return;
+  db.products=[]; db.trash=[]; db.sales=[]; db.purchases=[];
+  db.stores=['Elefanta']; db.categories=['Default'];
+  db.seq={prod:1, sale:1000, purch:5000};
+  save();                 // guarda local y sincroniza al servidor
+  renderAll(); renderReports();
+  document.getElementById('importPreview').innerHTML='';
+  alert('Listo: el programa quedó en cero. Ya puedes cargar tu inventario real.');
+  go('home');
 }
 
 /* ======== Exportar / Importar copia ======== */
