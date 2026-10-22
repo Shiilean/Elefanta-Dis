@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elefanta · Consulta de stock</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#7fc4c9; --teal-dark:#5a9ba0; --teal-light:#a9dadd;
+    --mint:#d9ede2; --mint-line:#bcdcc9;
+    --tan:#b49e7e; --tan-dark:#a08a68;
+    --text:#4a5a5c; --bg:#eef7f6; --card:#ffffff;
+    --shadow:0 2px 8px rgba(90,155,160,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg)}
+  .topbar{
+    background:var(--teal);color:#fff;display:flex;align-items:center;gap:12px;
+    padding:10px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:10;flex-wrap:wrap;
+  }
+  .topbar img{height:40px;width:auto;display:block}
+  .brand{font-family:'Caveat',cursive;font-size:30px;line-height:1;font-weight:700}
+  .sub{font-size:13px;opacity:.9;margin-left:2px}
+  .spacer{flex:1}
+  .upd{font-size:12px;opacity:.9;white-space:nowrap}
+  .wrap{max-width:900px;margin:0 auto;padding:18px 16px 60px}
+  h1.title{font-family:'Caveat',cursive;color:var(--teal-dark);font-weight:700;font-size:40px;margin:6px 0 4px;text-align:center}
+  .lead{text-align:center;color:var(--text);opacity:.8;margin:0 0 20px;font-size:14px}
+  .card{background:var(--card);border:1px solid #e6eceb;border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--teal-dark);margin:0 0 6px}
+  select,input{
+    width:100%;padding:12px;border:1px solid #d7dede;border-radius:8px;font-size:16px;
+    color:var(--text);background:#fff;
+  }
+  select:focus,input:focus{outline:none;border-color:var(--teal)}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:200px}
+  .summary{
+    display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 14px;
+  }
+  .chip{
+    background:var(--mint);border:1px solid var(--mint-line);border-radius:999px;
+    padding:8px 16px;font-size:14px;font-weight:600;color:var(--teal-dark);
+  }
+  .chip b{color:var(--text)}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  thead th{
+    background:var(--teal-dark);color:#fff;text-align:left;padding:10px 12px;font-weight:600;
+    position:sticky;top:60px;
+  }
+  thead th.num{text-align:right}
+  tbody td{padding:10px 12px;border-bottom:1px solid #eef2f1}
+  tbody tr:nth-child(even){background:#f8fbfb}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  td.sku{color:#8aa0a2;font-size:13px}
+  .stock{font-weight:700}
+  .stock.low{color:#c0632b}
+  .stock.zero{color:#b23b3b}
+  .empty{text-align:center;color:#8aa0a2;padding:30px}
+  .btn{
+    background:var(--teal);color:#fff;border:none;border-radius:8px;padding:11px 18px;
+    font-size:15px;font-weight:600;cursor:pointer;white-space:nowrap;
+  }
+  .btn:hover{background:var(--teal-dark)}
+  .msg{text-align:center;padding:14px;border-radius:8px;margin:10px 0;font-size:14px}
+  .msg.err{background:#fdecec;color:#b23b3b;border:1px solid #f3c9c9}
+  .msg.load{background:var(--mint);color:var(--teal-dark)}
+  .foot{text-align:center;font-size:12px;color:#9ab0b1;margin-top:18px}
+  @media(max-width:560px){
+    thead th{top:56px}
+    .cat-col{display:none}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <img id="logo" alt="Elefanta">
+    <div>
+      <div class="brand">Elefanta</div>
+      <div class="sub">Consulta de stock</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="upd" id="upd">—</div>
+  </div>
+
+  <div class="wrap">
+    <h1 class="title">Consulta de stock</h1>
+    <p class="lead">Elige tu tienda para ver tus productos y las cantidades disponibles.</p>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="store">Tienda</label>
+          <select id="store"><option value="">Cargando…</option></select>
+        </div>
+        <div>
+          <label for="q">Buscar producto o SKU</label>
+          <input id="q" type="text" placeholder="Escribe para filtrar…" autocomplete="off">
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:right">
+        <button class="btn" id="refresh">Actualizar</button>
+      </div>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="card" id="resultCard" style="display:none">
+      <div class="summary">
+        <span class="chip"><b id="cProd">0</b> productos</span>
+        <span class="chip"><b id="cUnits">0</b> unidades</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>SKU</th>
+              <th class="cat-col">Categoría</th>
+              <th class="num">Stock</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot">Elefanta Diseño · Esta vista es solo de consulta. No muestra precios ni permite modificar datos.</div>
+  </div>
+
+<script>
+const URL='https://script.google.com/macros/s/AKfycbzf9h4H5HChQ_j87qVjB2z4jza7awnkmwky1qACxiOaAPJrxAqIQVrqkmOV6H8fYEVj/exec';
+const KEY='Elefantadis1';
+const LOGO_SRC=document.querySelector('link[rel="icon"][type="image/png"]').href;
+document.getElementById('logo').src=LOGO_SRC;
+
+let ALL=[];     // [{name,sku,cat,store,stock}]
+let STORES=[];
+
+const norm=s=>String(s==null?'':s).toLowerCase()
+  .normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+
+function setStatus(html,cls){
+  const el=document.getElementById('status');
+  el.innerHTML = html ? '<div class="msg '+(cls||'')+'">'+html+'</div>' : '';
+}
+
+async function fetchStock(){
+  // 1) intento el punto "solo stock" (oculta precios en el servidor)
+  try{
+    const r=await fetch(URL+'?action=stockview&key='+encodeURIComponent(KEY));
+    const j=await r.json();
+    if(j && j.ok && Array.isArray(j.items)){
+      return {items:j.items, stores:j.stores||[]};
+    }
+  }catch(e){ /* sigo al plan B */ }
+  // 2) respaldo: cargo la base y me quedo SOLO con el stock
+  const r=await fetch(URL+'?action=load&key='+encodeURIComponent(KEY));
+  const j=await r.json();
+  if(!j || !j.ok || !j.db) throw new Error(j && j.error ? j.error : 'sin datos');
+  const db=j.db;
+  const items=(db.products||[]).map(p=>({
+    name:p.name, sku:p.sku||'', cat:p.cat||'', store:p.store, stock:Number(p.stock)||0
+  }));
+  return {items, stores:(db.stores||[])};
+}
+
+function fillStores(){
+  const sel=document.getElementById('store');
+  const prev=sel.value;
+  const inData=[...new Set(ALL.map(p=>p.store).filter(Boolean))];
+  const list=[...new Set([...(STORES||[]), ...inData])]
+    .sort((a,b)=>String(a).localeCompare(String(b),'es'));
+  sel.innerHTML='<option value="">— Selecciona tu tienda —</option>'+
+    list.map(s=>'<option>'+s+'</option>').join('');
+  if(prev && list.includes(prev)) sel.value=prev;
+}
+
+function render(){
+  const store=document.getElementById('store').value;
+  const card=document.getElementById('resultCard');
+  if(!store){ card.style.display='none'; return; }
+  const q=norm(document.getElementById('q').value);
+  let rows=ALL.filter(p=>p.store===store);
+  if(q) rows=rows.filter(p=>norm(p.name).includes(q)||norm(p.sku).includes(q));
+  rows.sort((a,b)=>String(a.name).localeCompare(String(b.name),'es'));
+
+  const units=rows.reduce((s,p)=>s+(Number(p.stock)||0),0);
+  document.getElementById('cProd').textContent=rows.length;
+  document.getElementById('cUnits').textContent=units;
+
+  const tb=document.getElementById('rows');
+  if(!rows.length){
+    tb.innerHTML='<tr><td colspan="4" class="empty">No hay productos para esta tienda'+(q?' con ese filtro':'')+'.</td></tr>';
+  }else{
+    tb.innerHTML=rows.map(p=>{
+      const st=Number(p.stock)||0;
+      const cls=st<=0?'stock zero':(st<=3?'stock low':'stock');
+      return '<tr>'+
+        '<td>'+esc(p.name)+'</td>'+
+        '<td class="sku">'+esc(p.sku)+'</td>'+
+        '<td class="cat-col">'+esc(p.cat)+'</td>'+
+        '<td class="num"><span class="'+cls+'">'+st+'</span></td>'+
+      '</tr>';
+    }).join('');
+  }
+  card.style.display='';
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function load(){
+  setStatus('Cargando stock…','load');
+  try{
+    const data=await fetchStock();
+    ALL=data.items||[];
+    STORES=data.stores||[];
+    fillStores();
+    render();
+    setStatus('');
+    document.getElementById('upd').textContent='Actualizado '+new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    setStatus('No se pudo cargar el stock. Revisa tu conexión a internet e intenta "Actualizar".','err');
+  }
+}
+
+document.getElementById('store').addEventListener('change',render);
+document.getElementById('q').addEventListener('input',render);
+document.getElementById('refresh').addEventListener('click',load);
+load();
+setInterval(load, 30000); // se refresca solo cada 30 s
+</script>
+</body>
+</html>
