@@ -47,9 +47,10 @@
   }
   .chip b{color:var(--text)}
   table{width:100%;border-collapse:collapse;font-size:15px}
+  .tablebox{overflow:auto;border:1px solid #eef2f1;border-radius:8px}
   thead th{
     background:var(--teal-dark);color:#fff;text-align:left;padding:10px 12px;font-weight:600;
-    position:sticky;top:60px;
+    position:sticky;top:0;z-index:2;
   }
   thead th.num{text-align:right}
   tbody td{padding:10px 12px;border-bottom:1px solid #eef2f1}
@@ -70,7 +71,6 @@
   .msg.load{background:var(--mint);color:var(--teal-dark)}
   .foot{text-align:center;font-size:12px;color:#9ab0b1;margin-top:18px}
   @media(max-width:560px){
-    thead th{top:56px}
     .cat-col{display:none}
   }
 </style>
@@ -80,7 +80,6 @@
     <img id="logo" alt="Elefanta">
     <div>
       <div class="brand">Elefanta</div>
-      <div class="sub">Consulta de stock</div>
     </div>
     <div class="spacer"></div>
     <div class="upd" id="upd">—</div>
@@ -113,7 +112,7 @@
         <span class="chip"><b id="cProd">0</b> productos</span>
         <span class="chip"><b id="cUnits">0</b> unidades</span>
       </div>
-      <div style="overflow-x:auto">
+      <div class="tablebox">
         <table>
           <thead>
             <tr>
@@ -208,6 +207,23 @@ function render(){
     }).join('');
   }
   card.style.display='';
+  capHeight();
+}
+
+// Muestra máximo 20 filas; el resto queda con barra de desplazamiento dentro de la tabla.
+function capHeight(){
+  const box=document.querySelector('.tablebox');
+  if(!box) return;
+  const trs=box.querySelectorAll('tbody tr');
+  const thead=box.querySelector('thead');
+  if(trs.length>20 && trs[19] && trs[0] && thead){
+    const headH=thead.getBoundingClientRect().height;
+    const top0=trs[0].getBoundingClientRect().top;
+    const bottom20=trs[19].getBoundingClientRect().bottom;
+    box.style.maxHeight=Math.round(headH+(bottom20-top0)+2)+'px';
+  }else{
+    box.style.maxHeight='';
+  }
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
