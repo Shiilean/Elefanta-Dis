@@ -136,6 +136,7 @@ const KEY='Elefantadis1';
 const LOGO_SRC=document.querySelector('link[rel="icon"][type="image/png"]').href;
 document.getElementById('logo').src=LOGO_SRC;
 
+const MOTHER_STORE='Elefanta';   // la tienda madre no se muestra en esta consulta
 let ALL=[];     // [{name,sku,cat,store,stock}]
 let STORES=[];
 
@@ -172,6 +173,7 @@ function fillStores(){
   const prev=sel.value;
   const inData=[...new Set(ALL.map(p=>p.store).filter(Boolean))];
   const list=[...new Set([...(STORES||[]), ...inData])]
+    .filter(s=>norm(s)!==norm(MOTHER_STORE))
     .sort((a,b)=>String(a).localeCompare(String(b),'es'));
   sel.innerHTML='<option value="">— Selecciona tu tienda —</option>'+
     list.map(s=>'<option>'+s+'</option>').join('');
