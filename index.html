@@ -139,6 +139,34 @@
   .cat-count{font-weight:600;font-size:12px;color:#8aa0a2;background:#f0f5f5;border-radius:999px;padding:2px 9px}
   .chip-x{color:#b23b3b;font-weight:700;font-size:19px;line-height:1;cursor:pointer;padding:0 6px;border-radius:5px}
   .chip-x:hover{background:#fdecec}
+  /* ---- Liquidación de tiendas ---- */
+  table.liq-prod{width:100%;border-collapse:collapse}
+  table.liq-prod th{background:var(--teal-dark);color:#fff;text-align:left;padding:9px 12px;font-weight:600}
+  table.liq-prod th.num,table.liq-prod td.num{text-align:right}
+  table.liq-prod td{padding:9px 12px;border-bottom:1px solid #eef2f1}
+  table.liq-prod td.sku{color:#8aa0a2;font-size:13px}
+  table.liq-prod tr.turq td{background:var(--teal);color:#fff;font-weight:700;font-size:16px;padding:12px}
+  table.liq-calc{width:100%;border-collapse:collapse}
+  table.liq-calc td{padding:9px 12px;border:1px solid #e6eceb}
+  table.liq-calc td.num{text-align:right}
+  table.liq-calc tr.liq-total td{background:var(--mint);font-weight:700;font-size:17px;color:var(--teal-dark)}
+  table.liq-calc tr.liq-total td.neg{color:#b23b3b}
+  table.liq-desc{width:100%;border-collapse:collapse}
+  table.liq-desc th{background:var(--mint);color:var(--teal-dark);text-align:left;padding:8px 10px;font-size:13px}
+  table.liq-desc th.num{text-align:right}
+  table.liq-desc td{padding:8px 10px;border-bottom:1px solid #eef2f1;vertical-align:middle}
+  table.liq-desc td.num{text-align:right}
+  table.liq-desc input{width:100%;padding:7px 9px;border:1px solid #d7dede;border-radius:6px;font-size:14px}
+  .store-cfg{margin-top:10px;padding-top:10px;border-top:1px dashed #e0e6e6;display:flex;flex-direction:column;gap:7px;text-align:left}
+  .store-cfg label{font-size:12px;font-weight:600;color:var(--teal-dark);margin:0}
+  .store-cfg input[type=number]{width:150px;padding:8px;border:1px solid #d7dede;border-radius:7px}
+  .store-cfg .chk{display:flex;align-items:center;gap:7px;font-weight:600;cursor:pointer}
+  .store-cfg .chk input{width:auto}
+  @media print{
+    .topbar,.sidemenu,.no-print,.tile-grid{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:none}
+  }
   .prodcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
   .prodcard{border:1px solid #e0e6e6;border-radius:8px;padding:14px;background:#fff}
   .prodcard h4{margin:0 0 8px;color:var(--teal-dark)}
@@ -202,6 +230,7 @@
   <a onclick="go('purchases')">Compras</a>
   <a onclick="go('stores')">Marcas / Tiendas</a>
   <a onclick="go('reports')">Reportes</a>
+  <a onclick="go('liquidacion')">Liquidación de tiendas</a>
   <h5>Datos</h5>
   <a onclick="go('categories')">Categorías</a>
   <a onclick="go('server')">Servidor (tiempo real)</a>
@@ -274,8 +303,8 @@
         <button class="btn-teal" onclick="addToCart()">Añadir Producto</button>
       </div>
       <table style="margin-top:16px">
-        <thead><tr><th>Nombre</th><th>Tienda</th><th class="num">Precio</th><th class="num">Cantidad</th><th class="num">Subtotal</th><th></th></tr></thead>
-        <tbody id="cartBody"><tr><td colspan="6" class="muted">Sin productos aún.</td></tr></tbody>
+        <thead><tr><th>Nombre</th><th>Tienda</th><th class="num">Precio</th><th class="num">Cant.</th><th class="num">Desc %</th><th class="num">Subtotal</th><th></th></tr></thead>
+        <tbody id="cartBody"><tr><td colspan="7" class="muted">Sin productos aún.</td></tr></tbody>
       </table>
     </div>
     <div class="card" style="flex:1;min-width:260px">
@@ -289,9 +318,8 @@
         <div class="pay" data-pay="Transferencia" onclick="pickPay(this)" title="Transferencia"><img src="data:image/jpeg;base64,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" alt="Transferencia" style="max-width:40px;max-height:34px"></div>
         <div class="pay" data-pay="Pasarela web" onclick="pickPay(this)" title="Pasarela web"><img src="data:image/jpeg;base64,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" alt="Pasarela web" style="max-width:40px;max-height:34px"></div>
       </div>
-      <label>Descuento</label>
-      <input type="number" id="saleDisc" value="0" oninput="renderCart()">
-      <button class="btn-green" style="width:100%;margin-top:14px" onclick="finishSale()">Realizar venta</button>
+      <p class="muted" style="font-size:12px;margin:2px 0 10px">El descuento se aplica por producto (columna <b>Desc %</b> en la tabla).</p>
+      <button class="btn-green" style="width:100%;margin-top:4px" onclick="finishSale()">Realizar venta</button>
     </div>
   </div>
 </div>
@@ -506,6 +534,17 @@
   </table>
 </div>
 
+<!-- ============ LIQUIDACIÓN DE TIENDAS ============ -->
+<div class="page" id="liquidacion">
+  <h1 class="title">Liquidación de tiendas</h1>
+  <div class="card no-print" style="max-width:560px">
+    <label>Tienda / sub-tienda</label>
+    <select id="liqStore" onchange="renderLiquidacion()"></select>
+    <p class="muted" style="margin-top:8px">Muestra las ventas del <b>mes en curso</b>, producto por producto. El arriendo y el IVA de cada tienda se configuran en “Marcas / Tiendas”.</p>
+  </div>
+  <div id="liqContent"></div>
+</div>
+
 <!-- ============ SERVIDOR (tiempo real) ============ -->
 <div class="page" id="server">
   <h1 class="title">Servidor (tiempo real)</h1>
@@ -589,7 +628,7 @@
    ELEFANTA DIS NUEVO  —  datos en localStorage
    ========================================================= */
 const KEY='elefanta_dis_nuevo';
-const money=n=>'$'+(Math.round(n||0)).toLocaleString('es-CL');
+const money=n=>{n=Math.round(n||0);return (n<0?'-$':'$')+Math.abs(n).toLocaleString('es-CL');};
 const todayISO=()=>new Date().toISOString().slice(0,10);
 let db;
 
@@ -627,6 +666,7 @@ function demo(){
 function load(){
   try{ db=JSON.parse(localStorage.getItem(KEY)); }catch(e){ db=null; }
   if(!db||!db.products){ db=demo(); save(); }
+  if(!db.storeConfig) db.storeConfig={};   // arriendo e IVA por tienda
 }
 function persistLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(e){} }
 function save(){ if(!applyingRemote){ db.lastModified=new Date().toISOString(); } persistLocal(); updateLastMod(); if(SRV.on() && !applyingRemote) schedulePush(); }
@@ -807,6 +847,7 @@ function renderAll(){
   fillSelect(document.getElementById('epCat'),db.categories,c=>c,c=>c);
   fillSelect(document.getElementById('epStore'),db.stores,s=>s,s=>s);
   fillSelect(document.getElementById('repStore'),db.stores,s=>s,s=>s,'Todas las tiendas');
+  fillSelect(document.getElementById('liqStore'),db.stores.filter(s=>s!==MOTHER_STORE),s=>s,s=>s,'— Elige una tienda —');
   const pOpts=visibleProducts();
   fillDatalist(document.getElementById('saleProdList'),pOpts,p=>`${p.name} — ${p.store} (${money(p.price)})`,saleProdMap);
   fillDatalist(document.getElementById('stkList'),db.products,p=>`${p.name} — ${p.store}`,stkMap);
@@ -814,6 +855,7 @@ function renderAll(){
   // tablas / vistas
   renderCart(); renderSales(); renderCats(); renderStoreList(); renderCatList();
   renderStockTable(); renderPurchases(); renderTrash(); updateLastMod();
+  if(document.getElementById('liquidacion').classList.contains('active')) renderLiquidacion();
 }
 
 /* ======== BUSCADOR EN PÁGINA PRINCIPAL ======== */
@@ -916,11 +958,20 @@ function renderStoreList(){
     const n=db.products.filter(p=>p.store===s).length;
     const esc=s.replace(/'/g,"\\'");
     const isMother=s===MOTHER_STORE;
+    const cfg=storeCfg(s);
     return `<div class="prodcard">
       <h4>${s}${isMother?' <span class="pill">Tienda madre</span>':''}</h4>
       <div class="ln">${n} producto(s)</div>
+      ${isMother?'':`<div class="store-cfg">
+        <div>
+          <label>Arriendo mensual</label>
+          <input type="number" min="0" value="${cfg.arriendo}" onchange="setStoreArriendo('${esc}',this.value)">
+        </div>
+        <label class="chk"><input type="checkbox" ${cfg.iva?'checked':''} onchange="setStoreIva('${esc}',this.checked)"> Descontar IVA 19% en la liquidación</label>
+      </div>`}
       <div class="btnbar">
         <button class="btn-teal" onclick="go('reports');document.getElementById('repStore').value='${esc}';renderReports()">Ver reporte</button>
+        ${isMother?'':`<button class="btn-teal" onclick="go('liquidacion');document.getElementById('liqStore').value='${esc}';renderLiquidacion()">Liquidación</button>`}
         ${isMother?'':`<button class="btn-red" onclick="deleteStore('${esc}')">Eliminar tienda</button>`}
       </div>
     </div>`;
@@ -1228,37 +1279,40 @@ function pickPay(el){ document.querySelectorAll('.pay').forEach(x=>x.classList.r
 function addToCart(){
   const id=prodIdFrom('saleProdPick'); if(!id){ alert('Elige un producto de la lista.'); return; }
   const line=cart.find(c=>c.pid===id);
-  if(line) line.qty++; else cart.push({pid:id,qty:1});
+  if(line) line.qty++; else cart.push({pid:id,qty:1,disc:0});
   document.getElementById('saleProdPick').value='';   // limpia para buscar el siguiente
   renderCart();
 }
 function renderCart(){
   const body=document.getElementById('cartBody');
-  if(!cart.length){ body.innerHTML='<tr><td colspan="6" class="muted">Sin productos aún.</td></tr>'; }
+  if(!cart.length){ body.innerHTML='<tr><td colspan="7" class="muted">Sin productos aún.</td></tr>'; }
   else body.innerHTML=cart.map((c,ix)=>{
     const p=prod(c.pid);
+    const dp=Math.min(100,Math.max(0,c.disc||0));
+    const lineNet=p.price*c.qty*(1-dp/100);
     return `<tr><td>${p.name}</td><td>${p.store}</td><td class="num">${money(p.price)}</td>
-      <td class="num"><input type="number" value="${c.qty}" min="1" style="width:70px" onchange="setQty(${ix},this.value)"></td>
-      <td class="num">${money(p.price*c.qty)}</td>
+      <td class="num"><input type="number" value="${c.qty}" min="1" style="width:62px" onchange="setQty(${ix},this.value)"></td>
+      <td class="num"><input type="number" value="${dp}" min="0" max="100" style="width:62px" onchange="setDisc(${ix},this.value)"></td>
+      <td class="num">${money(lineNet)}</td>
       <td><button class="btn-red" onclick="rmCart(${ix})">✕</button></td></tr>`;
   }).join('');
   const sub=cart.reduce((s,c)=>s+prod(c.pid).price*c.qty,0);
-  const disc=+document.getElementById('saleDisc').value||0;
+  const net=cart.reduce((s,c)=>s+prod(c.pid).price*c.qty*(1-Math.min(100,Math.max(0,c.disc||0))/100),0);
   document.getElementById('saleSub').textContent=money(sub);
-  document.getElementById('saleTot').textContent=money(Math.max(0,sub-disc));
+  document.getElementById('saleTot').textContent=money(net);
 }
 function setQty(ix,v){ cart[ix].qty=Math.max(1,+v||1); renderCart(); }
+function setDisc(ix,v){ cart[ix].disc=Math.min(100,Math.max(0,Math.round(+v||0))); renderCart(); }
 function rmCart(ix){ cart.splice(ix,1); renderCart(); }
 async function finishSale(){
   if(!cart.length){ alert('Agrega productos a la venta'); return; }
-  const disc=+document.getElementById('saleDisc').value||0;
-  const items=cart.map(c=>({pid:c.pid,qty:c.qty}));
+  const items=cart.map(c=>({pid:c.pid,qty:c.qty,disc:Math.min(100,Math.max(0,c.disc||0))}));
   if(SRV.on()){
     busy=true; setSync('guardando');
     try{
-      const j=await cloudPost({action:'sale',date:todayISO(),pay:payMethod,disc,items});
+      const j=await cloudPost({action:'sale',date:todayISO(),pay:payMethod,disc:0,items});
       applyServerDb(j.db);
-      cart=[]; document.getElementById('saleDisc').value='0';
+      cart=[];
       renderAll(); cloudOnline=true; setSync('ok'); markSynced();
       busy=false; alert('Venta realizada.'); go('sales'); return;
     }catch(e){
@@ -1268,31 +1322,36 @@ async function finishSale(){
     }
   }
   // Sin servidor: registro local
-  db.sales.push({id:db.seq.sale++,date:todayISO(),pay:payMethod,disc,items});
+  db.sales.push({id:db.seq.sale++,date:todayISO(),pay:payMethod,disc:0,items});
   cart.forEach(c=>{ const p=prod(c.pid); if(p) p.stock-=c.qty; });
-  cart=[]; document.getElementById('saleDisc').value='0';
+  cart=[];
   save(); renderAll(); alert('Venta realizada.'); go('sales');
 }
 
 /* ======== VENTAS: cálculos ======== */
-// Ganancia de Elefanta por item:
-//  - producto de la tienda madre  -> margen = precio - costo con IVA
-//  - producto de una sub-tienda   -> comisión = precio * comisión%
-function itemProfit(p,qty){
-  if(p.store===MOTHER_STORE) return (p.price-(p.costIva||0))*qty;
-  return p.price*qty*(p.comm/100);
+// Ganancia de Elefanta por item (dp = % de descuento de la línea):
+//  - producto de la tienda madre  -> margen = (precio con descuento) - costo con IVA
+//  - producto de una sub-tienda   -> comisión = (precio con descuento) * comisión%
+function itemProfit(p,qty,dp){
+  const f=1-(Math.min(100,Math.max(0,dp||0))/100);
+  if(p.store===MOTHER_STORE) return (p.price*f-(p.costIva||0))*qty;
+  return p.price*f*qty*(p.comm/100);
 }
 function saleTotals(s){
-  let gross=0, comm=0, profit=0;
+  let gross=0, net=0, comm=0, profit=0;
   s.items.forEach(it=>{
     const p=prod(it.pid); if(!p) return;
+    const f=1-(Math.min(100,Math.max(0,it.disc||0))/100);
     gross+=p.price*it.qty;
-    comm+=p.price*it.qty*(p.comm/100);
-    profit+=itemProfit(p,it.qty);
+    net+=p.price*f*it.qty;
+    comm+=p.price*f*it.qty*(p.comm/100);
+    profit+=itemProfit(p,it.qty,it.disc);
   });
-  const total=Math.max(0,gross-(s.disc||0));
+  // compatibilidad: ventas antiguas tenían un descuento global en pesos (s.disc)
+  const legacy=s.disc||0;
+  const total=Math.max(0,net-legacy);
   const iva=total-total/(1+IVA_RATE); // IVA incluido en el precio
-  profit-=(s.disc||0); // el descuento lo absorbe Elefanta
+  profit-=legacy; // el descuento antiguo lo absorbía Elefanta
   return {gross,total,iva,comm,profit};
 }
 function inRange(d,f,t){ return (!f||d>=f)&&(!t||d<=t); }
@@ -1321,6 +1380,112 @@ function voidSale(id){
   db.sales.splice(i,1); save(); renderAll();
 }
 
+/* ======== LIQUIDACIÓN DE TIENDAS ======== */
+const MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+function curMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function curMonth3(){ return MESES3[new Date().getMonth()]; }
+function htmlesc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function storeCfg(name){
+  db.storeConfig=db.storeConfig||{};
+  const c=db.storeConfig[name]||{};
+  return {arriendo:Number(c.arriendo)||0, iva:!!c.iva};
+}
+function setStoreCfg(name,patch){
+  db.storeConfig=db.storeConfig||{};
+  const cur=db.storeConfig[name]||{arriendo:0,iva:false};
+  const next=Object.assign({arriendo:0,iva:false},cur,patch);
+  db.storeConfig[name]={arriendo:Math.max(0,Math.round(Number(next.arriendo)||0)), iva:!!next.iva};
+  save();
+}
+function setStoreArriendo(name,v){ setStoreCfg(name,{arriendo:v}); if(curPage()==='liquidacion') renderLiquidacion(); }
+function setStoreIva(name,v){ setStoreCfg(name,{iva:v}); if(curPage()==='liquidacion') renderLiquidacion(); }
+function curPage(){ const a=document.querySelector('.page.active'); return a?a.id:''; }
+// Ventas del mes en curso para una tienda: una fila por unidad vendida.
+// El precio mostrado ya incluye el descuento (%) aplicado en la venta.
+function liqData(store){
+  const mk=curMonthKey(), lines=[], discSales=[];
+  db.sales.forEach(s=>{
+    if(String(s.date).slice(0,7)!==mk) return;
+    let saleDisc=0; const names=[];
+    s.items.forEach(it=>{
+      const p=prod(it.pid); if(!p||p.store!==store) return;
+      const dp=Math.min(100,Math.max(0,it.disc||0));
+      const eff=(p.price||0)*(1-dp/100);
+      const comm=(p.comm!=null?p.comm:0);
+      for(let k=0;k<it.qty;k++) lines.push({name:p.name,sku:p.sku||'',price:eff,disc:dp,comm:comm});
+      if(dp>0){ saleDisc+=(p.price||0)*it.qty*(dp/100); names.push(p.name+' (−'+dp+'%)'); }
+    });
+    if(saleDisc>0){
+      s.motivos=s.motivos||{};
+      discSales.push({saleId:s.id, date:s.date, detail:names.join(', '), monto:Math.round(saleDisc), motivo:s.motivos[store]||''});
+    }
+  });
+  const total=Math.round(lines.reduce((a,l)=>a+l.price,0));
+  const comm=Math.round(lines.reduce((a,l)=>a+l.price*(l.comm/100),0));
+  const cfg=storeCfg(store);
+  const iva=cfg.iva?Math.round(total*IVA_RATE):0;
+  const aPagar=total-comm-iva-cfg.arriendo;
+  return {lines,total,comm,iva,ivaOn:cfg.iva,arriendo:cfg.arriendo,aPagar,discSales};
+}
+// El admin registra el motivo del descuento de una venta (por tienda).
+function setLiqMotive(saleId,store,val){
+  const s=db.sales.find(x=>x.id===saleId); if(!s) return;
+  s.motivos=s.motivos||{}; s.motivos[store]=String(val||'');
+  save();
+}
+function renderLiquidacion(){
+  const sel=document.getElementById('liqStore'); if(!sel) return;
+  const box=document.getElementById('liqContent');
+  const store=sel.value;
+  if(!store){ box.innerHTML='<p class="muted">Elige una tienda para ver su liquidación del mes.</p>'; return; }
+  const d=liqData(store), mes=curMonth3(), anio=new Date().getFullYear();
+  let rows=d.lines.map(l=>{
+    const mk=l.disc>0?` <span class="sku">(−${l.disc}%)</span>`:'';
+    return `<tr><td>${htmlesc(l.name)}</td><td class="sku">${htmlesc(l.sku)}</td><td class="num">${money(l.price)}${mk}</td></tr>`;
+  }).join('');
+  if(!d.lines.length) rows=`<tr><td colspan="3" class="muted">Sin ventas registradas este mes.</td></tr>`;
+  let calc=`<tr><td>Total ventas</td><td class="num">${money(d.total)}</td></tr>`;
+  calc+=`<tr><td>Comisión (10%)</td><td class="num">− ${money(d.comm)}</td></tr>`;
+  if(d.ivaOn) calc+=`<tr><td>IVA ventas (19%)</td><td class="num">− ${money(d.iva)}</td></tr>`;
+  calc+=`<tr><td>Arriendo</td><td class="num">− ${money(d.arriendo)}</td></tr>`;
+  const neg=d.aPagar<0;
+  calc+=`<tr class="liq-total"><td>Total a pagar</td><td class="num${neg?' neg':''}">${money(d.aPagar)}</td></tr>`;
+  const nota=neg
+    ? 'El total a pagar es negativo: la tienda debe transferir ese monto a Elefanta.'
+    : '(Si el total a pagar es negativo, la tienda debe transferir ese monto a Elefanta.)';
+  const es=store.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  let descBlock='';
+  if(d.discSales.length){
+    const drows=d.discSales.map(x=>`<tr>
+        <td>${x.date}</td>
+        <td>${htmlesc(x.detail)}</td>
+        <td class="num">− ${money(x.monto)}</td>
+        <td><input type="text" value="${htmlesc(x.motivo)}" placeholder="Escribe el motivo…" onchange="setLiqMotive(${x.saleId},'${es}',this.value)"></td>
+      </tr>`).join('');
+    descBlock=`
+      <h4 style="margin:20px 0 8px;color:var(--teal-dark)">Descuentos del mes</h4>
+      <table class="liq-desc">
+        <thead><tr><th>Fecha</th><th>Producto(s)</th><th class="num">Descuento</th><th>Motivo</th></tr></thead>
+        <tbody>${drows}</tbody>
+      </table>
+      <p class="muted" style="margin-top:6px">El motivo lo registra la administración y queda guardado; el emprendedor lo ve en su enlace.</p>`;
+  }
+  box.innerHTML=`
+    <div class="card">
+      <h3 style="margin:0 0 2px;color:var(--teal-dark)">${htmlesc(store)}</h3>
+      <div class="muted" style="margin-bottom:14px">Liquidación de ${mes} · ${anio}</div>
+      <table class="liq-prod">
+        <thead><tr><th>Producto</th><th>Código</th><th class="num">Precio</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr class="turq"><td colspan="2">TOTAL VENTAS ${mes}</td><td class="num">${money(d.total)}</td></tr></tfoot>
+      </table>
+      <table class="liq-calc" style="max-width:430px;margin-top:18px">${calc}</table>
+      <p class="muted" style="color:#b23b3b;margin-top:10px">${nota}</p>
+      ${descBlock}
+      <button class="btn-teal no-print" style="margin-top:12px" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>`;
+}
+
 /* ======== REPORTES ======== */
 function repFilterStore(){ return document.getElementById('repStore').value; } // '' = todas
 function renderReports(){
@@ -1333,7 +1498,8 @@ function renderReports(){
     s.items.forEach(it=>{
       const p=prod(it.pid); if(!p) return;
       if(sf && p.store!==sf) return;
-      const amt=p.price*it.qty, cm=amt*(p.comm/100), prof=itemProfit(p,it.qty);
+      const f=1-(Math.min(100,Math.max(0,it.disc||0))/100);
+      const amt=p.price*f*it.qty, cm=amt*(p.comm/100), prof=itemProfit(p,it.qty,it.disc);
       const st=byStore[p.store]||(byStore[p.store]={lines:0,units:0,amount:0,comm:0,profit:0});
       st.lines++; st.units+=it.qty; st.amount+=amt; st.comm+=cm; st.profit+=prof;
       const pr=byProd[p.id]||(byProd[p.id]={name:p.name,store:p.store,units:0,amount:0});
@@ -1377,9 +1543,10 @@ function drillStore(name){
     if(!inRange(s.date,f,t)) return;
     s.items.forEach(it=>{
       const p=prod(it.pid); if(!p||p.store!==name) return;
+      const f2=1-(Math.min(100,Math.max(0,it.disc||0))/100);
       const r=rows[p.id]||(rows[p.id]={name:p.name,sku:p.sku,units:0,amount:0,profit:0});
-      r.units+=it.qty; r.amount+=p.price*it.qty; r.profit+=itemProfit(p,it.qty);
-      totUnits+=it.qty; totAmount+=p.price*it.qty; totProfit+=itemProfit(p,it.qty);
+      r.units+=it.qty; r.amount+=p.price*f2*it.qty; r.profit+=itemProfit(p,it.qty,it.disc);
+      totUnits+=it.qty; totAmount+=p.price*f2*it.qty; totProfit+=itemProfit(p,it.qty,it.disc);
     });
   });
   const list=Object.values(rows).sort((a,b)=>b.units-a.units);
@@ -1403,8 +1570,9 @@ function exportStoreReport(name){
     if(!inRange(s.date,f,t)) return;
     s.items.forEach(it=>{
       const p=prod(it.pid); if(!p||p.store!==name) return;
+      const f2=1-(Math.min(100,Math.max(0,it.disc||0))/100);
       const r=rows[p.id]||(rows[p.id]={Producto:p.name,SKU:p.sku,Unidades:0,Monto:0,Ganancia:0});
-      r.Unidades+=it.qty; r.Monto+=p.price*it.qty; r.Ganancia+=itemProfit(p,it.qty);
+      r.Unidades+=it.qty; r.Monto+=p.price*f2*it.qty; r.Ganancia+=itemProfit(p,it.qty,it.disc);
     });
   });
   const data=Object.values(rows);
