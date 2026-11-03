@@ -344,6 +344,11 @@
     <thead><tr><th>ID</th><th>Pago</th><th>Fecha</th><th class="num">IVA</th><th class="num">Ganancia</th><th class="num">Total</th><th></th></tr></thead>
     <tbody id="salesBody"></tbody>
   </table>
+  <div class="card" style="margin-top:18px;border:1px solid #f0d9d9">
+    <h2 class="sub" style="margin-top:0;color:#b23b3b">Anular ventas</h2>
+    <p class="muted" style="margin-top:0">Deja todos los montos de ventas en <b>cero</b> sin tocar el stock de las tiendas ni el historial de compras. Úsalo para cerrar/limpiar el período. No se puede deshacer.</p>
+    <button class="btn-red" onclick="anularVentas()">Anular todas las ventas (sin modificar stock)</button>
+  </div>
 </div>
 
 <!-- ============ PRODUCTOS (por categoría) ============ -->
@@ -1733,6 +1738,19 @@ function confirmImport(mode){
 }
 
 // Reiniciar solo ventas y compras (deja productos, stock, tiendas y categorías intactos)
+// Anula SOLO las ventas (montos a cero) sin devolver ni cambiar el stock,
+// y sin tocar el historial de compras.
+function anularVentas(){
+  if(!db.sales.length){ alert('No hay ventas registradas para anular.'); return; }
+  if(!confirm('¿Anular TODAS las ventas?\n\nLos montos de ventas quedan en cero. El stock de las tiendas NO se modifica y las compras se mantienen. Esta acción no se puede deshacer.')) return;
+  if(!confirm('Confírmalo: se anularán '+db.sales.length+' venta(s). El stock quedará igual.')) return;
+  db.sales=[];
+  db.seq=db.seq||{}; db.seq.sale=1000;
+  save();
+  renderAll(); renderReports();
+  alert('Ventas anuladas. El inventario y las compras se mantienen sin cambios.');
+  go('sales');
+}
 function reiniciarVentas(){
   if(!confirm('¿Reiniciar el historial de ventas y compras?\n\nLos productos y el stock se mantienen. Las tablas de ventas vuelven a cero. Esta acción no se puede deshacer.')) return;
   if(!confirm('Confírmalo: se borrarán '+db.sales.length+' venta(s) y '+db.purchases.length+' compra(s).')) return;
