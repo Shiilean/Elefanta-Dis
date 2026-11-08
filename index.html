@@ -139,6 +139,9 @@
   .cat-count{font-weight:600;font-size:12px;color:#8aa0a2;background:#f0f5f5;border-radius:999px;padding:2px 9px}
   .chip-x{color:#b23b3b;font-weight:700;font-size:19px;line-height:1;cursor:pointer;padding:0 6px;border-radius:5px}
   .chip-x:hover{background:#fdecec}
+  /* ---- Acceso administrador: oculta lo sensible en modo vendedora ---- */
+  body.mode-vend .admin-only{display:none !important}
+  .adminlink{color:var(--teal-dark) !important;font-weight:700}
   /* ---- Liquidación de tiendas ---- */
   table.liq-prod{width:100%;border-collapse:collapse}
   table.liq-prod th{background:var(--teal-dark);color:#fff;text-align:left;padding:9px 12px;font-weight:600}
@@ -221,6 +224,7 @@
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="sidemenu" id="sidemenu">
   <h5>Menú</h5>
+  <a id="adminToggle" class="adminlink" onclick="toggleAdmin()">🔒 Administrador</a>
   <a onclick="go('home')">Menú Principal</a>
   <a onclick="go('newsale')">Nueva Venta</a>
   <a onclick="go('sales')">Revisar Ventas</a>
@@ -229,12 +233,13 @@
   <a onclick="go('stock')">Ingresar Stock</a>
   <a onclick="go('purchases')">Compras</a>
   <a onclick="go('stores')">Marcas / Tiendas</a>
-  <a onclick="go('reports')">Reportes</a>
-  <a onclick="go('liquidacion')">Liquidación de tiendas</a>
+  <a class="admin-only" onclick="go('reports')">Reportes</a>
+  <a class="admin-only" onclick="go('liquidacion')">Liquidación de tiendas</a>
   <h5>Datos</h5>
   <a onclick="go('categories')">Categorías</a>
   <a onclick="go('server')">Servidor (tiempo real)</a>
-  <a onclick="go('import')">Base de datos (Excel)</a>
+  <a class="admin-only" onclick="go('import')">Base de datos (Excel)</a>
+  <a class="admin-only" onclick="changeAdminPass()">Cambiar clave de administrador</a>
   <a onclick="go('trash')">Papelera</a>
   <a onclick="exportData()">Exportar copia (.json)</a>
   <a onclick="document.getElementById('importFile').click()">Importar copia</a>
@@ -281,7 +286,7 @@
       <svg viewBox="122 154 60 60"><use href="#elefIcons"/></svg>
       <span>MARCAS / TIENDAS</span>
     </div>
-    <div class="tile t-light" onclick="go('reports')">
+    <div class="tile t-light admin-only" onclick="go('reports')">
       <svg viewBox="209 149 60 60"><use href="#elefIcons"/></svg>
       <span>REPORTES</span>
     </div>
@@ -331,7 +336,7 @@
     <div class="stat"><div class="lbl">Ventas</div><div class="val" id="stVentas">$0</div></div>
     <div class="stat"><div class="lbl">IVA en contra</div><div class="val" id="stIva">$0</div></div>
     <div class="stat"><div class="lbl">N° Ventas</div><div class="val" id="stNum">0</div></div>
-    <div class="stat"><div class="lbl">Ganancia Elefanta</div><div class="val" id="stProfit">$0</div></div>
+    <div class="stat admin-only"><div class="lbl">Ganancia Elefanta</div><div class="val" id="stProfit">$0</div></div>
   </div>
   <div class="card">
     <div class="row">
@@ -341,10 +346,10 @@
     </div>
   </div>
   <table>
-    <thead><tr><th>ID</th><th>Pago</th><th>Fecha</th><th class="num">IVA</th><th class="num">Ganancia</th><th class="num">Total</th><th></th></tr></thead>
+    <thead><tr><th>ID</th><th>Pago</th><th>Fecha</th><th class="num">IVA</th><th class="num admin-only">Ganancia</th><th class="num">Total</th><th></th></tr></thead>
     <tbody id="salesBody"></tbody>
   </table>
-  <div class="card" style="margin-top:18px;border:1px solid #f0d9d9">
+  <div class="card admin-only" style="margin-top:18px;border:1px solid #f0d9d9">
     <h2 class="sub" style="margin-top:0;color:#b23b3b">Anular ventas</h2>
     <p class="muted" style="margin-top:0">Deja todos los montos de ventas en <b>cero</b> sin tocar el stock de las tiendas ni el historial de compras. Úsalo para cerrar/limpiar el período. No se puede deshacer.</p>
     <button class="btn-red" onclick="anularVentas()">Anular todas las ventas (sin modificar stock)</button>
@@ -372,7 +377,7 @@
     <select id="npType"><option>Existe en stock</option><option>A pedido</option></select>
     <label>Precio de venta a público:</label>
     <input id="npPrice" type="number" placeholder="Ingresa precio">
-    <div class="row">
+    <div class="row admin-only">
       <div><label>Coste (sin IVA):</label><input id="npCost" type="number" placeholder="Costo neto"></div>
       <div><label>Costo con IVA:</label><input id="npCostIva" type="number" placeholder="Costo con IVA"></div>
     </div>
@@ -407,7 +412,7 @@
     <input id="epStock" type="number">
     <label>Precio de venta a público:</label>
     <input id="epPrice" type="number" placeholder="Ingresa precio">
-    <div class="row">
+    <div class="row admin-only">
       <div><label>Coste (sin IVA):</label><input id="epCost" type="number" placeholder="Costo neto"></div>
       <div><label>Costo con IVA:</label><input id="epCostIva" type="number" placeholder="Costo con IVA"></div>
     </div>
@@ -672,6 +677,45 @@ function load(){
   try{ db=JSON.parse(localStorage.getItem(KEY)); }catch(e){ db=null; }
   if(!db||!db.products){ db=demo(); save(); }
   if(!db.storeConfig) db.storeConfig={};   // arriendo e IVA por tienda
+  if(db.adminPass==null) db.adminPass='Elefanta2026';   // clave de administrador (cámbiala en el menú)
+}
+
+/* ======== ACCESO ADMINISTRADOR ========
+   El programa se abre en "modo vendedora": sin ganancias, reportes,
+   liquidación ni costos. El botón "Administrador" pide la clave y
+   desbloquea todo hasta que se cierre sesión o se cierre el programa. */
+let isAdmin=false;
+function loadAdminState(){ try{ isAdmin = sessionStorage.getItem('elefanta_admin')==='1'; }catch(e){ isAdmin=false; } }
+function adminPass(){ return (db && db.adminPass) ? db.adminPass : 'Elefanta2026'; }
+function applyAdminUI(){
+  document.body.classList.toggle('mode-vend', !isAdmin);
+  const l=document.getElementById('adminToggle');
+  if(l) l.textContent = isAdmin ? '🔓 Salir de administrador' : '🔒 Administrador';
+}
+function toggleAdmin(){
+  if(isAdmin){
+    isAdmin=false; try{sessionStorage.removeItem('elefanta_admin');}catch(e){}
+    applyAdminUI();
+    if(document.querySelector('.page.active') && ['reports','liquidacion','import'].includes(curPage())) go('home');
+    else renderAll();
+    return;
+  }
+  const p=prompt('Clave de administrador:');
+  if(p==null) return;
+  if(p===adminPass()){
+    isAdmin=true; try{sessionStorage.setItem('elefanta_admin','1');}catch(e){}
+    applyAdminUI(); renderAll();
+    alert('Modo administrador activado.');
+  } else alert('Clave incorrecta.');
+}
+function changeAdminPass(){
+  if(!isAdmin){ alert('Primero entra como administrador.'); return; }
+  const a=prompt('Clave actual:'); if(a==null) return;
+  if(a!==adminPass()){ alert('La clave actual no es correcta.'); return; }
+  const n=prompt('Nueva clave de administrador:'); if(n==null) return;
+  const v=n.trim(); if(!v){ alert('La clave no puede quedar vacía.'); return; }
+  db.adminPass=v; save();
+  alert('Clave de administrador actualizada.');
 }
 function persistLocal(){ try{ localStorage.setItem(KEY,JSON.stringify(db)); }catch(e){} }
 function save(){ if(!applyingRemote){ db.lastModified=new Date().toISOString(); } persistLocal(); updateLastMod(); if(SRV.on() && !applyingRemote) schedulePush(); }
@@ -808,7 +852,10 @@ function toggleMenu(){
   const o=document.getElementById('overlay');
   o.style.display=o.style.display==='block'?'none':'block';
 }
+const ADMIN_PAGES=['reports','liquidacion','import'];
 function go(id){
+  // Páginas solo para administrador: si no está activo, pide la clave
+  if(ADMIN_PAGES.includes(id) && !isAdmin){ toggleAdmin(); if(!isAdmin) return; }
   if(id==='server') fillServerForm();
   // mantener/limpiar el modo de la ficha de producto
   if(id==='newproduct'){ if(npMode!=='editstock') setupProductForm('new'); }
@@ -967,7 +1014,7 @@ function renderStoreList(){
     return `<div class="prodcard">
       <h4>${s}${isMother?' <span class="pill">Tienda madre</span>':''}</h4>
       <div class="ln">${n} producto(s)</div>
-      ${isMother?'':`<div class="store-cfg">
+      ${isMother?'':`<div class="store-cfg admin-only">
         <div>
           <label>Arriendo mensual</label>
           <input type="number" min="0" value="${cfg.arriendo}" onchange="setStoreArriendo('${esc}',this.value)">
@@ -975,9 +1022,9 @@ function renderStoreList(){
         <label class="chk"><input type="checkbox" ${cfg.iva?'checked':''} onchange="setStoreIva('${esc}',this.checked)"> Descontar IVA 19% en la liquidación</label>
       </div>`}
       <div class="btnbar">
-        <button class="btn-teal" onclick="go('reports');document.getElementById('repStore').value='${esc}';renderReports()">Ver reporte</button>
-        ${isMother?'':`<button class="btn-teal" onclick="go('liquidacion');document.getElementById('liqStore').value='${esc}';renderLiquidacion()">Liquidación</button>`}
-        ${isMother?'':`<button class="btn-red" onclick="deleteStore('${esc}')">Eliminar tienda</button>`}
+        <button class="btn-teal admin-only" onclick="go('reports');document.getElementById('repStore').value='${esc}';renderReports()">Ver reporte</button>
+        ${isMother?'':`<button class="btn-teal admin-only" onclick="go('liquidacion');document.getElementById('liqStore').value='${esc}';renderLiquidacion()">Liquidación</button>`}
+        ${isMother?'':`<button class="btn-red admin-only" onclick="deleteStore('${esc}')">Eliminar tienda</button>`}
       </div>
     </div>`;
   }).join('');
@@ -1369,7 +1416,7 @@ function renderSales(){
     const tt=saleTotals(s);
     V+=tt.total; I+=tt.iva; N++; P+=tt.profit;
     rows.push(`<tr><td>${s.id}</td><td>${s.pay}</td><td>${s.date}</td>
-      <td class="num">${money(tt.iva)}</td><td class="num">${money(tt.profit)}</td><td class="num">${money(tt.total)}</td>
+      <td class="num">${money(tt.iva)}</td><td class="num admin-only">${money(tt.profit)}</td><td class="num">${money(tt.total)}</td>
       <td><button class="btn-red" onclick="voidSale(${s.id})">Anular</button></td></tr>`);
   });
   document.getElementById('stVentas').textContent=money(V);
@@ -1792,6 +1839,7 @@ function importData(e){
 
 /* ======== Init ======== */
 load();
+loadAdminState(); applyAdminUI();   // arranca en modo vendedora salvo que ya haya sesión admin
 // Config de servidor por defecto la primera vez (se puede cambiar en Menú → Servidor)
 try{
   if(!SRV.url() && SRV_DEFAULT_URL) localStorage.setItem('elefanta_srv_url',SRV_DEFAULT_URL);
