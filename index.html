@@ -231,19 +231,19 @@
   <a onclick="go('products')">Productos</a>
   <a onclick="go('newproduct')">Nuevo Producto</a>
   <a onclick="go('stock')">Ingresar Stock</a>
-  <a onclick="go('purchases')">Compras</a>
+  <a class="admin-only" onclick="go('purchases')">Compras</a>
   <a onclick="go('stores')">Marcas / Tiendas</a>
   <a class="admin-only" onclick="go('reports')">Reportes</a>
   <a class="admin-only" onclick="go('liquidacion')">Liquidación de tiendas</a>
-  <h5>Datos</h5>
-  <a onclick="go('categories')">Categorías</a>
-  <a onclick="go('server')">Servidor (tiempo real)</a>
+  <h5 class="admin-only">Datos</h5>
+  <a class="admin-only" onclick="go('categories')">Categorías</a>
+  <a class="admin-only" onclick="go('server')">Servidor (tiempo real)</a>
   <a class="admin-only" onclick="go('import')">Base de datos (Excel)</a>
   <a class="admin-only" onclick="changeAdminPass()">Cambiar clave de administrador</a>
-  <a onclick="go('trash')">Papelera</a>
-  <a onclick="exportData()">Exportar copia (.json)</a>
-  <a onclick="document.getElementById('importFile').click()">Importar copia</a>
-  <a onclick="resetDemo()">Restablecer datos de ejemplo</a>
+  <a class="admin-only" onclick="go('trash')">Papelera</a>
+  <a class="admin-only" onclick="exportData()">Exportar copia (.json)</a>
+  <a class="admin-only" onclick="document.getElementById('importFile').click()">Importar copia</a>
+  <a class="admin-only" onclick="resetDemo()">Restablecer datos de ejemplo</a>
 </div>
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
 
@@ -278,7 +278,7 @@
       <svg viewBox="300 149 60 60"><use href="#elefIcons"/></svg>
       <span>NUEVO PRODUCTO</span>
     </div>
-    <div class="tile t-tan" onclick="go('purchases')">
+    <div class="tile t-tan admin-only" onclick="go('purchases')">
       <svg viewBox="34 152 60 60"><use href="#elefIcons"/></svg>
       <span>COMPRAS</span>
     </div>
@@ -332,7 +332,7 @@
 <!-- ============ REVISAR VENTAS ============ -->
 <div class="page" id="sales">
   <h1 class="title">Ver Ventas</h1>
-  <div class="statbar">
+  <div class="statbar admin-only">
     <div class="stat"><div class="lbl">Ventas</div><div class="val" id="stVentas">$0</div></div>
     <div class="stat"><div class="lbl">IVA en contra</div><div class="val" id="stIva">$0</div></div>
     <div class="stat"><div class="lbl">N° Ventas</div><div class="val" id="stNum">0</div></div>
@@ -696,7 +696,7 @@ function toggleAdmin(){
   if(isAdmin){
     isAdmin=false; try{sessionStorage.removeItem('elefanta_admin');}catch(e){}
     applyAdminUI();
-    if(document.querySelector('.page.active') && ['reports','liquidacion','import'].includes(curPage())) go('home');
+    if(ADMIN_PAGES.includes(curPage())) go('home');
     else renderAll();
     return;
   }
@@ -852,7 +852,7 @@ function toggleMenu(){
   const o=document.getElementById('overlay');
   o.style.display=o.style.display==='block'?'none':'block';
 }
-const ADMIN_PAGES=['reports','liquidacion','import'];
+const ADMIN_PAGES=['reports','liquidacion','import','purchases','categories','server','trash'];
 function go(id){
   // Páginas solo para administrador: si no está activo, pide la clave
   if(ADMIN_PAGES.includes(id) && !isAdmin){ toggleAdmin(); if(!isAdmin) return; }
